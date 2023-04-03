@@ -1,12 +1,40 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for, flash, request
+from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 
+from data import db_session
+from data.user import User
+from data.forms import *
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'super_secret_key'
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', title='ЕГЭпасс')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    db = db_session.create_session()
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(email=form.email.data, hashed_password=form.password.data)
+        db.add(user)
+        db.commit()
+        flash(f'Аккаунт создан {form.email.data}!', 'Успешно!')
+        return redirect(url_for('#'))
+    return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route('/login')
+def login():
+    return "Это страница входа"
+
+
+def main():
+    db_session.global_init("database.db")
+    app.run()
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    main()

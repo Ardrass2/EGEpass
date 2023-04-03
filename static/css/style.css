@@ -1,0 +1,53 @@
+.reg-form {
+  display: grid;
+}
+
+.field-label {
+  margin: auto;
+}
+#email {
+    margin: 0 auto;
+    padding:10px;
+    border:0;
+    box-shadow:0 0 15px 4px rgba(0,0,0,0.06);
+    display: block;
+}
+#confirm_password {
+    margin: 0 auto;
+    padding:10px;
+    border:0;
+    box-shadow:0 0 15px 4px rgba(0,0,0,0.06);
+    display: block;
+}
+#password {
+    margin: 0 auto;
+    padding:10px;
+    border:0;
+    box-shadow:0 0 15px 4px rgba(0,0,0,0.06);
+    display: block;
+}
+#role {
+    position: relative;
+    width: 200px;
+    padding: 10px;
+    margin: 0 auto;
+    background: #ffff;
+    color: black;
+    outline: none;
+    cursor: pointer;
+    font-weight: bold;
+    display: block;
+}
+#submit {
+    position: relative;
+    width: 200px;
+    padding: 10px;
+    margin: 0 auto;
+    background: #B4DFE5;
+    color: black;
+    outline: none;
+    border: 0 solid;
+    cursor: pointer;
+    font-weight: bold;
+    display: block;
+}

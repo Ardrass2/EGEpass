@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="reg-form">
+        <label class="field-label">Почта</label>
+            {{ form.email(size=20) }}
+        <label class="field-label">Пароль</label>
+            {{ form.password(size=20) }}
+        <label class="field-label">Подтверждение пароля</label>
+            {{ form.confirm_password(size=20) }}
+        <label class="field-label">Роль</label>
+            {{ form.role() }}
+        <p>{{ form.submit() }}</p>
+
+{% endblock %}
