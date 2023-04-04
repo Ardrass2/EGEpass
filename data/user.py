@@ -13,6 +13,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     email = sqlalchemy.Column(sqlalchemy.String, nullable=True, unique=True)
+    username = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     role = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,

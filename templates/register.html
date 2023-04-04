@@ -1,15 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="reg-form">
-        <label class="field-label">Почта</label>
-            {{ form.email(size=20) }}
-        <label class="field-label">Пароль</label>
-            {{ form.password(size=20) }}
-        <label class="field-label">Подтверждение пароля</label>
-            {{ form.confirm_password(size=20) }}
-        <label class="field-label">Роль</label>
-            {{ form.role() }}
-        <p>{{ form.submit() }}</p>
-
+<form method="POST" action="/register">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.email.label(class="field-label") }} {{ form.email }}
+    </div>
+    <div class="form-group">
+        {{ form.username.label(class="field-label") }} {{ form.username }}
+    </div>
+    <div class="form-group">
+        {{ form.password.label(class="field-label") }} {{ form.password }}
+    </div>
+    <div class="form-group">
+        {{ form.confirm_password.label(class="field-label") }} {{ form.confirm_password }}
+    </div>
+    <div class="form-group">
+        {{ form.role.label(class="field-label") }} {{ form.role }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% for msg in get_flashed_messages(True) %}
+    <div class="alert alert-danger" role="alert">{{msg}}</div>
+{% endfor %}
 {% endblock %}

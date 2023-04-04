@@ -6,7 +6,9 @@ from data.user import User
 from data.forms import *
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
-
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'users.login'
 
 @app.route('/')
 def index():
@@ -15,20 +17,37 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    db = db_session.create_session()
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(email=form.email.data, hashed_password=form.password.data)
-        db.add(user)
-        db.commit()
-        flash(f'Аккаунт создан {form.email.data}!', 'Успешно!')
-        return redirect(url_for('#'))
-    return render_template('register.html', title='Регистрация', form=form)
+        db = db_session.create_session()
+        print(str(form.password.data), str(form.confirm_password.data), str(form.password.data) != str(form.confirm_password.data))
+        if str(form.password.data) != str(form.confirm_password.data):
+            flash("Вы не подтвердили пароль", "Ошибка")
+        elif db.query(User).filter(User.email == form.email.data).first():
+            flash("Пользователь уже занят", "Ошибка")
+        else:
+            user = User(email=form.email.data, username=form.username.data, role=form.role.data)
+            user.set_password(form.password.data)
+            db.add(user)
+            db.commit()
+            return redirect(url_for("login"))
+    return render_template("register.html", title="Регистрация", form=form)
 
 
 @app.route('/login')
 def login():
     return "Это страница входа"
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
+@login_manager.user_loader
+def load_user(user):
+    return User.query.get(int(user))
 
 
 def main():
