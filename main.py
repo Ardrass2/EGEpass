@@ -34,6 +34,16 @@ def register():
     return render_template("register.html", title="Регистрация", form=form)
 
 
+@app.route('/settings', methods=['GET', 'POST'])
+def setting():
+    form = SettingsForm()
+    if form.validate_on_submit():
+        if str(form.school_subject_1.data) == str(form.school_subject_2.data):
+            flash("Одинаковые предметы по выбору", "Ошибка")
+        #  Тут Потом с паролем делать
+    return render_template("settings.html", title="Настройки", form=form)
+
+
 @app.route('/login')
 def login():
     return "Это страница входа"

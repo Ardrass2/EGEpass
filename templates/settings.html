@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form method="POST" action="/settings">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+        {{ form.school_subject_1.label(class="field-label") }} {{ form.school_subject_1 }}
+    </div>
+    <div class="form-group">
+        {{ form.school_subject_2.label(class="field-label") }} {{ form.school_subject_2 }}
+    </div>
+    {{ form.submit2(class="btn btn-primary") }}
+    <div class="form-group">
+        {{ form.confirm_password.label(class="field-label") }} {{ form.confirm_password }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% for msg in get_flashed_messages(True) %}
+    <div class="alert alert-danger" role="alert">{{msg}}</div>
+{% endfor %}
+{% endblock %}
