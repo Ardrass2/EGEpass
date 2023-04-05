@@ -3,13 +3,25 @@
 }
 
 .field-label {
-    margin: auto;
+    display: block;
+    text-align: center;
+}
+footer {
+    color: #fff
+}
 
+body {
+    margin: 0;
+    color: #151719;
+    background-color: #D2FDFF;
+    /* Растягиваем body по высоте html */
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
 }
 
 input {
     border-radius: 10px;
-    background-color: #B4DFE5;
     margin: 0 auto;
     padding: 10px;
     border: 0;
@@ -36,7 +48,7 @@ input {
     position: relative;
     width: 200px;
     padding: 10px;
-    margin: 0 auto;
+    margin: 20px auto;
     background: #B4DFE5;
     color: black;
     outline: none;
@@ -86,3 +98,4 @@ input {
     cursor: pointer;
     font-weight: bold;
     display: block;
+}

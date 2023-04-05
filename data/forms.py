@@ -35,6 +35,6 @@ class SettingsForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Почта', validators=[DataRequired()])
+    email = StringField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Войти')

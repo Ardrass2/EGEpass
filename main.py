@@ -10,13 +10,31 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'users.login'
 
+
 @app.route('/')
+@app.route('/index')
 def index():
     return render_template('index.html', title='ЕГЭпасс')
 
 
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    db = db_session.create_session()
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = db.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            return redirect(url_for('/'))
+    return render_template("login.html", form=form)
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         db = db_session.create_session()
@@ -30,7 +48,8 @@ def register():
             user.set_password(form.password.data)
             db.add(user)
             db.commit()
-            return redirect(url_for("login"))
+            login_user(user)
+            return redirect(url_for("index"))
     return render_template("register.html", title="Регистрация", form=form)
 
 
@@ -44,11 +63,6 @@ def setting():
     return render_template("settings.html", title="Настройки", form=form)
 
 
-@app.route('/login')
-def login():
-    return "Это страница входа"
-
-
 @app.route('/logout')
 def logout():
     logout_user()
@@ -57,7 +71,8 @@ def logout():
 
 @login_manager.user_loader
 def load_user(user):
-    return User.query.get(int(user))
+    db = db_session.create_session()
+    return db.query(User).get(int(user))
 
 
 def main():
