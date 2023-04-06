@@ -1,9 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
-
+from data.scores import subject_tasks, Exams, TestSeparately
 from data import db_session
 from data.user import User
 from data.forms import *
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
 login_manager = LoginManager()
@@ -27,14 +28,28 @@ def login():
         user = db.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            return redirect(url_for('/'))
+            return redirect(url_for('index'))
+        elif user:
+            flash("Неправильный логин либо пароль", "Ошибка")
+        else:
+            flash("Пользователь не найден. Необходима регистрация.", "Ошибка")
     return render_template("login.html", form=form)
+
+
+@app.route('/add_result/<subject>', methods=['POST', 'GET'])
+def add_result(subject):
+    if current_user.is_authenticated:
+        if subject.lower() in subject_tasks.keys():
+            return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject], enumerate=enumerate)
+    else:
+        return redirect(url_for("login"))
+    return render_template("add_result.html")
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('add_result'))
     form = RegistrationForm()
     if form.validate_on_submit():
         db = db_session.create_session()

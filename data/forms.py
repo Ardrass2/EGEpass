@@ -1,7 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FloatField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 from .user import User
+
+class AdditionResultsForm(FlaskForm):
+    checkbox = BooleanField
+    submit = SubmitField('Отправить')
 
 
 class RegistrationForm(FlaskForm):

@@ -99,3 +99,37 @@ input {
     font-weight: bold;
     display: block;
 }
+input[type="number"] {
+    padding: 0;
+}
+
+.checkbox {
+    display: inline-block;
+    width: 30px;
+	height: 20px;
+	margin-left: 0;
+	margin-right: 5%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+.checkbox:checked {
+	background-color: #007bff;
+    border-color: #007bff;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 20%));
+  grid-gap: 5px;
+}
+.grid > div {
+  background: #FBE8A6;
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+.grid1 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(49%, 49%));
+  grid-gap: 1px;
+}

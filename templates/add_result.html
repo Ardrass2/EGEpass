@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<div>
+    <h1>Задания</h1>
+    <div class="grid1">
+        <div>Отметьте те задания, которые вы выполинили правильно галочкой.
+            <br> Для задания второй части предусмотрен ввод баллов.
+        </div>
+        <div>
+            <form>
+                <fieldset>
+                    <legend>{{subject.capitalize()}}</legend>
+                    <div class="grid">
+                        {% for i, task in enumerate(tasks)%}
+                        {% if task == 1 %}
+                        <div>
+                            <label for="checkbox{{i + 1}}">№{{i + 1}}</label>
+                            <input type="checkbox" class="checkbox" id="checkbox{{i + 1}}" name="task_{{i + 1}}">
+                        </div>
+                        {% else%}
+                        <div>
+                            <label for="checkbox{{i + 1}}">№{{i + 1}}</label>
+                            <input type="number" min=0 max="{{task}}" class="checkbox" id="checkbox{{i + 1}}"
+                                   name="task_{{i + 1}}">
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
