@@ -3,18 +3,26 @@
 {% block content %}
 <form method="POST" action="/settings">
     {{ form.hidden_tag() }}
-
+    <figure class="text-end text-white" style="background-color: #303C6C">
+      <blockquote class="blockquote">
+        <p>Per aspera ad astra</p>
+      </blockquote>
+    </figure>
+    <h2>ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ Настройки</h2>
+    <h4>ㅤ</h4>
+    <h4>ㅤ</h4>
+    <h2>ㅤСмена Пароля</h2>
+    <h>ㅤㅤОбязательно запомните новый пароль</h>
     <div class="form-group">
-        {{ form.school_subject_1.label(class="field-label") }} {{ form.school_subject_1 }}
+        {{ form.change_password.label(class="field-label") }} {{ form.change_password }}
     </div>
-    <div class="form-group">
-        {{ form.school_subject_2.label(class="field-label") }} {{ form.school_subject_2 }}
-    </div>
-    {{ form.submit2(class="btn btn-primary") }}
+    <h1>ㅤ</h1>
     <div class="form-group">
         {{ form.confirm_password.label(class="field-label") }} {{ form.confirm_password }}
     </div>
-    {{ form.submit(class="btn btn-primary") }}
+    <h4>ㅤ</h4>
+    {{ form.submit_pass(class="btn btn-primary") }}
+    <h4>ㅤ</h4>
 </form>
 {% for msg in get_flashed_messages(True) %}
     <div class="alert alert-danger" role="alert">{{msg}}</div>

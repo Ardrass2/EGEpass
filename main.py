@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
+from werkzeug.security import generate_password_hash
 from data.scores import subject_tasks, Exams, TestSeparately
 from data import db_session
 from data.user import User
@@ -72,9 +73,14 @@ def register():
 def setting():
     form = SettingsForm()
     if form.validate_on_submit():
-        if str(form.school_subject_1.data) == str(form.school_subject_2.data):
-            flash("Одинаковые предметы по выбору", "Ошибка")
-        #  Тут Потом с паролем делать
+        if not str(form.change_password.data) == str(form.confirm_password.data):
+            flash("Пароли различаются", "Ошибка")
+        else:
+            db = db_session.create_session()
+            current_user.hashed_password.replace(current_user.hashed_password,
+                                                 (generate_password_hash(str(form.change_password.data))))
+            db.merge(current_user)
+            db.commit()
     return render_template("settings.html", title="Настройки", form=form)
 
 

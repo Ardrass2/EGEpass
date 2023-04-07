@@ -19,23 +19,9 @@ class RegistrationForm(FlaskForm):
 
 
 class SettingsForm(FlaskForm):
-    school_subject_1 = SelectField('Предмет 2',
-                        choices=[('English', "Английский"), ('Biology', 'Биология'),
-                                 ('Geography', 'География'), ('History', 'История'),
-                                 ('literature', 'Литература'), ('Math', 'Математика профиль'),
-                                 ('Social Science', 'Обществознание'), ('Russian', 'Русский язык'),
-                                 ('Physics', 'Физика'), ('Chemistry', 'Химия')], validators=[DataRequired()])
-
-    school_subject_2 = SelectField('Предмет 2',
-                       choices=[('English', "Английский"), ('Biology', 'Биология'),
-                                ('Geography', 'География'), ('History', 'История'),
-                                ('literature', 'Литература'), ('Math', 'Математика профиль'),
-                                ('Social Science', 'Обществознание'), ('Russian', 'Русский язык'),
-                                ('Physics', 'Физика'), ('Chemistry', 'Химия')], validators=[DataRequired()])
-
-    confirm_password = StringField('Смена пароля', validators=[DataRequired(), Length(min=6)])
-    submit = SubmitField('Подтвердить пароль')
-    submit2 = SubmitField('Подтвердить предметы')
+    change_password = PasswordField('Новый пароль', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Подтвердить пароль', validators=[DataRequired(), Length(min=6)])
+    submit_pass = SubmitField('Подтвердить изменения')
 
 
 class LoginForm(FlaskForm):
