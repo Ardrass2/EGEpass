@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Selec
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 from .user import User
 
+
 class AdditionResultsForm(FlaskForm):
     checkbox = BooleanField
     submit = SubmitField('Отправить')
@@ -10,11 +11,10 @@ class AdditionResultsForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     username = StringField('ФИО', validators=[DataRequired()])
-    email = StringField('Почта', validators=[DataRequired(), Length(min=2, max=20)])
-    password = PasswordField('Пароль', validators=[DataRequired()])
-    confirm_password = PasswordField('Подтвердить пароль', validators=[DataRequired()])
-    role = SelectField('Роль',
-                  choices=[('teacher', "Учитель"), ('student', 'Ученик')], validators=[DataRequired()])
+    email = StringField('Почта', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Подтвердить пароль', validators=[DataRequired(), Length(min=6)])
+    role = SelectField('Роль', choices=[('teacher', "Учитель"), ('student', 'Ученик')], validators=[DataRequired()])
     submit = SubmitField('Зарегистрироваться')
 
 

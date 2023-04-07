@@ -1,0 +1,15 @@
+{% extends 'base.html'%}
+{% block content %}
+<h2>ПРЕДМЕТЫ</h2>
+<div class="cards">
+    {% for subject in subjects %}
+    <div class="card">
+        <img src="/static/img/{{subject}}.png" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title">{{subject.capitalize()}}</h5>
+            <a href="#" class="btn btn-primary">Перейти</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

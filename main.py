@@ -34,7 +34,7 @@ def login():
             flash("Неправильный логин либо пароль", "Ошибка")
         else:
             flash("Пользователь не найден. Необходима регистрация.", "Ошибка")
-    return render_template("login.html", form=form)
+    return render_template("login.html", form=form, title='Вход')
 
 
 @app.route('/add_result/<subject>', methods=['POST', 'GET'])
@@ -44,7 +44,7 @@ def add_result(subject):
             return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject], enumerate=enumerate)
     else:
         return redirect(url_for("login"))
-    return render_template("add_result.html")
+    return render_template("add_result.html", title=subject.capitalize())
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -77,11 +77,15 @@ def setting():
             flash("Пароли различаются", "Ошибка")
         else:
             db = db_session.create_session()
-            current_user.hashed_password.replace(current_user.hashed_password,
-                                                 (generate_password_hash(str(form.change_password.data))))
+            current_user.hashed_password.replace(current_user.set_password(form.change_password.data))
             db.merge(current_user)
             db.commit()
     return render_template("settings.html", title="Настройки", form=form)
+
+
+@app.route("/subjects")
+def subjects():
+    return render_template("subjects.html", subjects=subject_tasks.keys(), title="Предметы")
 
 
 @app.route('/logout')

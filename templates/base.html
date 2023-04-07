@@ -23,9 +23,11 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
-                    <li>Здравствуйте, {{current_user.username}}!</li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('login') }}">Личный кабинет</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('setting') }}">Настройки</a></li>
+                    <li><a>Здравствуйте, {{current_user.username}}!</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('subjects') }}">Предметы</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('setting') }}">Настройки</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('logout') }}">Выйти</a></li>
                     {% else %}
                     <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('login') }}">Войти</a></li>
