@@ -1,12 +1,13 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 from .user import User
 
 
 class AdditionResultsForm(FlaskForm):
-    checkbox = BooleanField
-    submit = SubmitField('Отправить')
+    checkboxes_fields = [BooleanField(f"{i}") for i in range(40)]
+    numb_fields = [IntegerField(f"{i}", default=0) for i in range(50)]
+    submit = SubmitField('Отправить результат')
 
 
 class RegistrationForm(FlaskForm):

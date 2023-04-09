@@ -40,8 +40,15 @@ def login():
 @app.route('/add_result/<subject>', methods=['POST', 'GET'])
 def add_result(subject):
     if current_user.is_authenticated:
+        form = AdditionResultsForm()
         if subject.lower() in subject_tasks.keys():
-            return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject], enumerate=enumerate)
+            return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject],
+                                   enumerate=enumerate, form=form, title=subject.capitalize())
+        if request.method == 'POST' and form.validate_on_submit():
+            count = 0
+            for field in form:
+                pass
+
     else:
         return redirect(url_for("login"))
     return render_template("add_result.html", title=subject.capitalize())
@@ -54,7 +61,8 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         db = db_session.create_session()
-        print(str(form.password.data), str(form.confirm_password.data), str(form.password.data) != str(form.confirm_password.data))
+        print(str(form.password.data), str(form.confirm_password.data),
+              str(form.password.data) != str(form.confirm_password.data))
         if str(form.password.data) != str(form.confirm_password.data):
             flash("Вы не подтвердили пароль", "Ошибка")
         elif db.query(User).filter(User.email == form.email.data).first():
@@ -83,8 +91,15 @@ def setting():
     return render_template("settings.html", title="Настройки", form=form)
 
 
+@app.route('/subjects/<subject>')
+def subject(subject):
+    return render_template("subject.html", title=subject, subject=subject)
+
+
 @app.route("/subjects")
 def subjects():
+    if not current_user.is_authenticated:
+        return redirect(url_for("login"))
     return render_template("subjects.html", subjects=subject_tasks.keys(), title="Предметы")
 
 
