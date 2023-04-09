@@ -39,19 +39,16 @@ def login():
 
 @app.route('/add_result/<subject>', methods=['POST', 'GET'])
 def add_result(subject):
+    form = AdditionResultsForm()
     if current_user.is_authenticated:
-        form = AdditionResultsForm()
-        if subject.lower() in subject_tasks.keys():
-            return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject],
-                                   enumerate=enumerate, form=form, title=subject.capitalize())
-        if request.method == 'POST' and form.validate_on_submit():
-            count = 0
-            for field in form:
-                pass
-
+        if form.validate_on_submit():
+            for elem in form:
+                print(elem.data)
     else:
         return redirect(url_for("login"))
-    return render_template("add_result.html", title=subject.capitalize())
+    if subject in subject_tasks.keys():
+        return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject],
+                               enumerate=enumerate, form=form, title=subject.capitalize())
 
 
 @app.route('/register', methods=['GET', 'POST'])

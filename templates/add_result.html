@@ -15,13 +15,14 @@
                         {% for i, task in enumerate(tasks)%}
                         {% if task == 1 %}
                         <div>
-                            <label for="checkbox{{i + 1}}">№{{i + 1}}</label>
-                            {{ form.checkboxes_fields[i + 1]() }}
+                            <label for="{{i + 1}}">№{{i + 1}}</label>
+                            {{ form.checkboxes_fields(id=i + 1, class="checkbox") }}
                         </div>
                         {% else %}
                         <div>
-                            <label for="number{{i + 1}}">№{{i + 1}}</label>
-                            {{ for number in form.checkboxes_fields }}
+                            <label for="{{i + 1}}">№{{i + 1}}</label>
+                            {{ form.numb_fields(id=i + 1, min=0, max=task, class="checkbox") }}
+
                         </div>
                         {% endif %}
                         {% endfor %}
