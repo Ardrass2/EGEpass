@@ -39,16 +39,29 @@ def login():
 
 @app.route('/add_result/<subject>', methods=['POST', 'GET'])
 def add_result(subject):
-    form = AdditionResultsForm()
     if current_user.is_authenticated:
-        if form.validate_on_submit():
-            for elem in form:
-                print(elem.data)
+        if request.method == 'POST':
+            all_score = []
+            for i in range(len(subject_tasks[subject])):
+                if subject_tasks[subject][i] == 1:
+                    all_score.append(1 if request.form.get(f'task_{i + 1}') == 'on' else 0)
+                else:
+                    all_score.append(
+                        int(request.form.get(f'integer_{i + 1}')) if request.form.get(f'integer_{i + 1}') else 0)
+            db = db_session.create_session()
+            exam = Exams(user_id=current_user.id, subject=subject, primary_score=sum(all_score))
+            db.add(exam)
+            for i, score in enumerate(all_score):
+                scores = TestSeparately(user_id=current_user.id, exam_id=exam.id, task_number=i + 1, score=score,
+                                        subject=exam.subject)
+                db.add(scores)
+            db.commit()
+            return redirect(url_for("subjects"))
     else:
         return redirect(url_for("login"))
     if subject in subject_tasks.keys():
         return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject],
-                               enumerate=enumerate, form=form, title=subject.capitalize())
+                               enumerate=enumerate, title=subject.capitalize())
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -58,8 +71,6 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         db = db_session.create_session()
-        print(str(form.password.data), str(form.confirm_password.data),
-              str(form.password.data) != str(form.confirm_password.data))
         if str(form.password.data) != str(form.confirm_password.data):
             flash("Вы не подтвердили пароль", "Ошибка")
         elif db.query(User).filter(User.email == form.email.data).first():

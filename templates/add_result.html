@@ -8,26 +8,25 @@
         </div>
         <div>
             <form method="POST">
-                {{ form.csrf_token }}
                 <fieldset>
                     <legend>{{subject.capitalize()}}</legend>
                     <div class="grid">
                         {% for i, task in enumerate(tasks)%}
                         {% if task == 1 %}
                         <div>
-                            <label for="{{i + 1}}">№{{i + 1}}</label>
-                            {{ form.checkboxes_fields(id=i + 1, class="checkbox") }}
+                            <label for="checkbox{{i + 1}}">№{{i + 1}}</label>
+                            <input type="checkbox" class="checkbox" id="checkbox{{i + 1}}" name="task_{{i + 1}}">
                         </div>
-                        {% else %}
+                        {% else%}
                         <div>
-                            <label for="{{i + 1}}">№{{i + 1}}</label>
-                            {{ form.numb_fields(id=i + 1, min=0, max=task, class="checkbox") }}
-
+                            <label for="checkbox{{i + 1}}">№{{i + 1}}</label>
+                            <input type="number" min=0 max="{{task}}" class="checkbox" id="checkbox{{i + 1}}"
+                                   name="integer_{{i + 1}}">
                         </div>
                         {% endif %}
                         {% endfor %}
                     </div>
-                    {{ form.submit(class="btn btn-primary") }}
+                    <button type="submit", class="btn btn-outline-primary">Отправить</button>
                 </fieldset>
             </form>
         </div>

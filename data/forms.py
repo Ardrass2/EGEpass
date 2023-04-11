@@ -4,12 +4,6 @@ from wtforms.validators import DataRequired, Length, EqualTo, Email, NumberRange
 from .user import User
 
 
-class AdditionResultsForm(FlaskForm):
-    checkboxes_fields = BooleanField()
-    numb_fields = IntegerField(validators=[DataRequired(), NumberRange(min=0, max=10)])
-    submit = SubmitField('Отправить результат')
-
-
 class RegistrationForm(FlaskForm):
     username = StringField('ФИО', validators=[DataRequired()])
     email = StringField('Почта', validators=[DataRequired(), Email()])

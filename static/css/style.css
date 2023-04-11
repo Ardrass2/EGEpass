@@ -6,6 +6,7 @@
     display: block;
     text-align: center;
 }
+
 footer {
     color: #fff
 }
@@ -81,6 +82,7 @@ input {
     box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
     display: block;
 }
+
 input[type="number"] {
     padding: 0;
 }
@@ -88,35 +90,48 @@ input[type="number"] {
 .checkbox {
     display: inline-block;
     width: 30px;
-	height: 20px;
-	margin-left: 0;
-	margin-right: 5%;
+    height: 20px;
+    margin-left: 0;
+    margin-right: 5%;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 3px;
     vertical-align: middle;
 }
+
 .checkbox:checked {
-	background-color: #007bff;
+    background-color: #007bff;
     border-color: #007bff;
 }
+
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 20%));
-  grid-gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 20%));
+    grid-gap: 5px;
 }
+
 .grid > div {
-  background: #FBE8A6;
-  padding: 1.5rem;
-  border-radius: 1rem;
+    background: #FBE8A6;
+    padding: 1.5rem;
+    border-radius: 1rem;
 }
+
 .grid1 {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(49%, 49%));
-  grid-gap: 1px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(49%, 49%));
+    grid-gap: 1px;
 }
+
 .cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 19%));
-  grid-gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 19%));
+    grid-gap: 5px;
+}
+
+.btn {
+    display: flex;
+    font-size: 0.875rem;
+    padding: 0.375rem 0.25rem;
+    justify-content: center;
+    align-items: center;
 }
