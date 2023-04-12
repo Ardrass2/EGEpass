@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
 <div><h1 class="text-center">{{subject.capitalize()}}</h1></div>
-<a href="/add_result/{{subject}}" class="btn btn-outline-primary" style="padding: 1rem 1rem">Добавить результат</a>
+<div class="grid"></div>
+    <div id="statistic-graph">
+        <script>
+            var graph = {{graphJSON | safe}};
+            Plotly.newPlot('statistic-graph', graph.data, graph.layout);
+        </script>
+    <div>
+        <a href="/add_result/{{subject}}" class="btn btn-outline-primary" style="padding: 1rem 1rem">Добавить результат</a>
+    </div>
+    </div>
 
 {% endblock %}

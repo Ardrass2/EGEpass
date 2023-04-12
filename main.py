@@ -1,5 +1,9 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
+import plotly.graph_objs as go
+import plotly.express as px
+import plotly
+import json
 from werkzeug.security import generate_password_hash
 from data.scores import subject_tasks, Exams, TestSeparately
 from data import db_session
@@ -56,7 +60,7 @@ def add_result(subject):
                                         subject=exam.subject)
                 db.add(scores)
             db.commit()
-            return redirect(url_for("subjects"))
+            return redirect(url_for(f"subjects"))
     else:
         return redirect(url_for("login"))
     if subject in subject_tasks.keys():
@@ -87,6 +91,8 @@ def register():
 
 @app.route('/settings', methods=['GET', 'POST'])
 def setting():
+    if not current_user.is_authenticated:
+        return redirect(url_for('index'))
     form = SettingsForm()
     if form.validate_on_submit():
         if not str(form.change_password.data) == str(form.confirm_password.data):
@@ -99,15 +105,30 @@ def setting():
     return render_template("settings.html", title="Настройки", form=form)
 
 
-@app.route('/subjects/<subject>')
+@app.route("/subjects/<subject>")
 def subject(subject):
-    return render_template("subject.html", title=subject, subject=subject)
+    if not current_user.is_authenticated:
+        return redirect(url_for('index'))
+    else:
+        db = db_session.create_session()
+        exams = db.query(Exams).filter(Exams.subject == subject).all()
+        if exams:
+            scores = [exam.primary_score for exam in exams]
+            number = list(range(1, len(exams) + 1))
+
+            fig = px.line(x=number, y=scores, labels={'x': 'Номер пробника', 'y': 'Количество баллов'},
+                          title='Первичные баллы')
+            graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+        else:
+            return render_template("subject.html", title=subject, subject=subject, graphJSON=0)
+
+    return render_template("subject.html", title=subject, subject=subject, graphJSON=graphJSON)
 
 
 @app.route("/subjects")
 def subjects():
     if not current_user.is_authenticated:
-        return redirect(url_for("login"))
+        return redirect(url_for("index"))
     return render_template("subjects.html", subjects=subject_tasks.keys(), title="Предметы")
 
 
