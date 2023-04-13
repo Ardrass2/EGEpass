@@ -29,7 +29,7 @@ class TestSeparately(SqlAlchemyBase, SerializerMixin):
     exam_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("exams.id"))
     task_number = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, default=0)
     score = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, default=0)
-    subject = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("exams.subject"),nullable=True)
+    subject = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("exams.subject"), nullable=True)
 
 
 class Exams(SqlAlchemyBase, SerializerMixin):

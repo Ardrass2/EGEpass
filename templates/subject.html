@@ -1,15 +1,29 @@
 {% extends 'base.html' %}
 {% block content %}
 <div><h1 class="text-center">{{subject.capitalize()}}</h1></div>
-<div class="grid"></div>
-    <div id="statistic-graph">
+<div class="grid2">
+    <div id="primary-graph">
         <script>
-            var graph = {{graphJSON | safe}};
-            Plotly.newPlot('statistic-graph', graph.data, graph.layout);
+            var graph = {{ primaryJSON | safe }};
+            Plotly.newPlot('primary-graph', graph.data, graph.layout);
         </script>
+    </div>
+    <div id="secondory-graph">
+        <script>
+            var graph = {{ secondoryJSON | safe }};
+            Plotly.newPlot('secondory-graph', graph.data, graph.layout);
+        </script>
+    </div>
     <div>
         <a href="/add_result/{{subject}}" class="btn btn-outline-primary" style="padding: 1rem 1rem">Добавить результат</a>
     </div>
+    <div>
+        <h2>Ваша статистика</h2>
+        Ваше следует проработать следующие задания - {{bad}}
+        <a href="subjects/{{subject}}/stats" class="btn btn-outline-primary">Статистика</a>
     </div>
+    <div>
 
+    </div>
+</div>
 {% endblock %}

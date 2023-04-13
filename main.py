@@ -41,6 +41,11 @@ def login():
     return render_template("login.html", form=form, title='Вход')
 
 
+@app.route('/subjects/<subject>/stats')
+def stats(subject):
+    return render_template("stats.html")
+
+
 @app.route('/add_result/<subject>', methods=['POST', 'GET'])
 def add_result(subject):
     if current_user.is_authenticated:
@@ -111,18 +116,28 @@ def subject(subject):
         return redirect(url_for('index'))
     else:
         db = db_session.create_session()
-        exams = db.query(Exams).filter(Exams.subject == subject).all()
+        exams = db.query(Exams).filter(Exams.subject == subject, Exams.user_id == current_user.id).all()
+        all_numbers = db.query(TestSeparately).filter(TestSeparately.subject == subject,
+                                                      TestSeparately.user_id == current_user.id).all()
+        for number in all_numbers:
+            print(number.task_number, number.score)
         if exams:
-            scores = [exam.primary_score for exam in exams]
+            primary_scores = [exam.primary_score for exam in exams]
+            secondary_scores = [exam.secondary_score for exam in exams]
             number = list(range(1, len(exams) + 1))
 
-            fig = px.line(x=number, y=scores, labels={'x': 'Номер пробника', 'y': 'Количество баллов'},
+            fig = px.line(x=number, y=primary_scores, labels={'x': 'Номер пробника', 'y': 'Количество баллов'},
                           title='Первичные баллы')
-            graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            primaryJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            fig = px.line(x=number, y=secondary_scores, labels={'x': 'Номер пробника', 'y': 'Количество баллов'},
+                          title='Вторичные баллы')
+            seconderyJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
         else:
-            return render_template("subject.html", title=subject, subject=subject, graphJSON=0)
+            return render_template("subject.html", title=subject, subject=subject, primaryJSON=0, secondaryJSON=0,
+                                   bad=0)
 
-    return render_template("subject.html", title=subject, subject=subject, graphJSON=graphJSON)
+    return render_template("subject.html", title=subject, subject=subject, primaryJSON=primaryJSON,
+                           secondoryJSON=seconderyJSON, bad=1)
 
 
 @app.route("/subjects")
