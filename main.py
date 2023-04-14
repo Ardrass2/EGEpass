@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly
 import json
 from werkzeug.security import generate_password_hash
-from data.scores import subject_tasks, Exams, TestSeparately
+from data.scores import *
 from data import db_session
 from data.user import User
 from data.forms import *
@@ -58,16 +58,17 @@ def add_result(subject):
                     all_score.append(
                         int(request.form.get(f'integer_{i + 1}')) if request.form.get(f'integer_{i + 1}') else 0)
             db = db_session.create_session()
-            exam = Exams(user_id=current_user.id, subject=subject, primary_score=sum(all_score))
+            exam = Exams(user_id=current_user.id, subject=subject, primary_score=sum(all_score),
+                         secondary_score=primary_to_secondary[subject][sum(all_score)])
             db.add(exam)
             for i, score in enumerate(all_score):
                 scores = TestSeparately(user_id=current_user.id, exam_id=exam.id, task_number=i + 1, score=score,
                                         subject=exam.subject)
-                db.add(scores)
+            db.add(scores)
             db.commit()
             return redirect(url_for(f"subjects"))
-    else:
-        return redirect(url_for("login"))
+        else:
+            return redirect(url_for("login"))
     if subject in subject_tasks.keys():
         return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject],
                                enumerate=enumerate, title=subject.capitalize())
@@ -122,9 +123,25 @@ def subject(subject):
         exams = db.query(Exams).filter(Exams.subject == subject, Exams.user_id == current_user.id).all()
         all_numbers = db.query(TestSeparately).filter(TestSeparately.subject == subject,
                                                       TestSeparately.user_id == current_user.id).all()
-        for number in all_numbers:
-            print(number.task_number, number.score)
+        bad = []
         if exams:
+            average_score = {}
+            for i in range(1, len(subject_tasks[subject]) + 1):
+                points_of_tasks = db.query(TestSeparately).filter(TestSeparately.subject == subject,
+                                                                  TestSeparately.user_id == current_user.id,
+                                                                  TestSeparately.task_number == i).all()
+                summary = 0
+                num_of_tasks = 0
+                for task in points_of_tasks:
+                    summary += int(task.score)
+                    num_of_tasks += 1
+                average_score[i] = summary / num_of_tasks
+            a = dict(sorted(average_score.items(), key=lambda item: item[1]))
+            for elem in a:
+                bad.append(f"{elem}({round(a[elem], 3)} баллов в среднем)")
+                if len(bad) > 3:
+                    break
+            bad = ", ".join(bad)
             primary_scores = [exam.primary_score for exam in exams]
             secondary_scores = [exam.secondary_score for exam in exams]
             number = list(range(1, len(exams) + 1))

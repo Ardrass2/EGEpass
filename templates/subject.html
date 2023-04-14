@@ -8,19 +8,21 @@
             Plotly.newPlot('primary-graph', graph.data, graph.layout);
         </script>
     </div>
+    {% if subject != 'математика (базовый)' %}
     <div id="secondory-graph">
         <script>
             var graph = {{ secondoryJSON | safe }};
             Plotly.newPlot('secondory-graph', graph.data, graph.layout);
         </script>
     </div>
+    {% endif %}
     <div>
         <a href="/add_result/{{subject}}" class="btn btn-outline-primary" style="padding: 1rem 1rem">Добавить результат</a>
     </div>
     <div>
         <h2>Ваша статистика</h2>
         Ваше следует проработать следующие задания - {{bad}}
-        <a href="subjects/{{subject}}/stats" class="btn btn-outline-primary">Статистика</a>
+        <a href="{{subject}}/stats" class="btn btn-outline-primary">Статистика</a>
     </div>
     <div>
 
