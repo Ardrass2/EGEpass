@@ -30,6 +30,14 @@ input {
     display: block;
 }
 
+user_needed {
+    border-radius: 10px;
+    margin: 0 auto;
+    padding: 10px;
+    border: 0;
+    box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
+    display: block;
+}
 
 #role {
     border-radius: 10px;
@@ -46,6 +54,20 @@ input {
 }
 
 #submit {
+    position: relative;
+    width: 200px;
+    padding: 10px;
+    margin: 20px auto;
+    background: #B4DFE5;
+    color: black;
+    outline: none;
+    border: 0 solid;
+    cursor: pointer;
+    font-weight: bold;
+    display: block;
+}
+
+#submit_user {
     position: relative;
     width: 200px;
     padding: 10px;

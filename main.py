@@ -114,6 +114,9 @@ def setting():
 def subject(subject):
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
+    elif current_user.role == 'teacher':
+        form = TeacherForm()
+        return render_template('teacher.html', title=subject, subject=subject, form=form)
     else:
         db = db_session.create_session()
         exams = db.query(Exams).filter(Exams.subject == subject, Exams.user_id == current_user.id).all()

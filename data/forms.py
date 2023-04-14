@@ -20,6 +20,11 @@ class SettingsForm(FlaskForm):
     submit_pass = SubmitField('Подтвердить изменения')
 
 
+class TeacherForm(FlaskForm):
+    user_needed = StringField('Имя ученика, покашта', validators=[DataRequired()])
+    submit_user = SubmitField('ТАКТОЧНА')
+
+
 class LoginForm(FlaskForm):
     email = StringField('Почта', validators=[DataRequired(), Email()])
     password = PasswordField('Пароль', validators=[DataRequired()])

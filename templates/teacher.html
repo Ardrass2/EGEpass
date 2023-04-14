@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form method="POST" action="/settings">
+    {{ form.hidden_tag() }}
+    <figure class="text-end text-white" style="background-color: #303C6C">
+      <blockquote class="blockquote">
+        <p>Per aspera ad astra</p>
+      </blockquote>
+    </figure>
+    <h1>Ну типо</h1>
+    <h4>ㅤ</h4>
+    <h4>ㅤ</h4>
+    <h2>ㅤУчитель</h2>
+    <h>ㅤㅤ{{ subject }} - это прекрасно</h>
+    <div class="form-group">
+        {{ form.user_needed.label(class="field-label") }} {{ form.user_needed }}
+    </div>
+    {{ form.submit_user(class="btn btn-primary") }}
+</form>
+{% for msg in get_flashed_messages(True) %}
+    <div class="alert alert-danger" role="alert">{{msg[1]}}</div>
+{% endfor %}
+{% endblock %}
