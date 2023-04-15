@@ -1,10 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid1">
+    <div>
+        <h1 class="fs-1 fw-bold text-center">Статистика</h1>
+        <h3>Средний балл за пробники: {{ avg_score }}</h3>
+        <h3>Лучший балл за пробники: {{ best_score }}</h3>
+        <h3>Худший балл за пробники: {{ worst_score }}</h3>
+        <h3>Всего написано пробников: <em>{{ len(all_exams) }}</em></h3>
+    </div>
+    <fieldset>
+        <legend class="fs-1 fw-bold text-center">Средний балл за каждый предмет</legend>
+        <div class="grid">
+            {% for task in all_tasks%}
+            <div>
+                <label>№{{ task }}: {{ round(all_tasks[task], 2) }} из {{ subject_tasks[task - 1] }}</label>
+            </div>
+            {% endfor %}
+        </div>
+    </fieldset>
+</div>
+{% endblock %}

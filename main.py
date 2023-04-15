@@ -43,7 +43,19 @@ def login():
 
 @app.route('/subjects/<subject>/stats')
 def stats(subject):
-    return render_template("stats.html")
+    if current_user.is_authenticated:
+        db = db_session.create_session()
+        all_exams = db.query(Exams).filter(Exams.subject == subject, Exams.user_id == current_user.id).all()
+        all_secondary_results = []
+        for exam in all_exams:
+            all_secondary_results.append(exam.secondary_score)
+        best = max(all_secondary_results) if all_secondary_results else 0
+        worst = min(all_secondary_results) if all_secondary_results else 0
+        all_average = get_all_tasks(subject) if all_secondary_results else []
+    return render_template("stats.html", avg_score=round(
+        sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3), best_score=best,
+                           worst_score=worst, all_tasks=all_average, len=len, round=round, title=subject.capitalize(),
+                           subject_tasks=subject_tasks[subject], all_exams=all_exams)
 
 
 @app.route('/add_result/<subject>', methods=['POST', 'GET'])
@@ -58,17 +70,21 @@ def add_result(subject):
                     all_score.append(
                         int(request.form.get(f'integer_{i + 1}')) if request.form.get(f'integer_{i + 1}') else 0)
             db = db_session.create_session()
-            exam = Exams(user_id=current_user.id, subject=subject, primary_score=sum(all_score),
-                         secondary_score=primary_to_secondary[subject][sum(all_score)])
+            if subject != "математика (базовый)":
+                exam = Exams(user_id=current_user.id, subject=subject, primary_score=sum(all_score),
+                             secondary_score=primary_to_secondary[subject][sum(all_score)])
+            else:
+                exam = Exams(user_id=current_user.id, subject=subject, primary_score=sum(all_score))
             db.add(exam)
+            db.commit()
             for i, score in enumerate(all_score):
                 scores = TestSeparately(user_id=current_user.id, exam_id=exam.id, task_number=i + 1, score=score,
                                         subject=exam.subject)
-            db.add(scores)
+                db.add(scores)
             db.commit()
             return redirect(url_for(f"subjects"))
-        else:
-            return redirect(url_for("login"))
+    else:
+        return redirect(url_for("login"))
     if subject in subject_tasks.keys():
         return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject],
                                enumerate=enumerate, title=subject.capitalize())
@@ -106,6 +122,7 @@ def setting():
         else:
             db = db_session.create_session()
             current_user.hashed_password.replace(current_user.set_password(form.change_password.data))
+            current_user.hashed_password = generate_password_hash(str(form.change_password.data))
             db.merge(current_user)
             db.commit()
     return render_template("settings.html", title="Настройки", form=form)
@@ -119,29 +136,16 @@ def subject(subject):
         form = TeacherForm()
         return render_template('teacher.html', title=subject, subject=subject, form=form)
     else:
+        bad = []
         db = db_session.create_session()
         exams = db.query(Exams).filter(Exams.subject == subject, Exams.user_id == current_user.id).all()
-        all_numbers = db.query(TestSeparately).filter(TestSeparately.subject == subject,
-                                                      TestSeparately.user_id == current_user.id).all()
-        bad = []
         if exams:
-            average_score = {}
-            for i in range(1, len(subject_tasks[subject]) + 1):
-                points_of_tasks = db.query(TestSeparately).filter(TestSeparately.subject == subject,
-                                                                  TestSeparately.user_id == current_user.id,
-                                                                  TestSeparately.task_number == i).all()
-                summary = 0
-                num_of_tasks = 0
-                for task in points_of_tasks:
-                    summary += int(task.score)
-                    num_of_tasks += 1
-                average_score[i] = summary / num_of_tasks
-            a = dict(sorted(average_score.items(), key=lambda item: item[1]))
+            a = get_all_tasks(subject, sort=True)
             for elem in a:
                 bad.append(f"{elem}({round(a[elem], 3)} баллов в среднем)")
                 if len(bad) > 3:
                     break
-            bad = ", ".join(bad)
+            bad = "№" + ", №".join(bad)
             primary_scores = [exam.primary_score for exam in exams]
             secondary_scores = [exam.secondary_score for exam in exams]
             number = list(range(1, len(exams) + 1))
@@ -154,10 +158,10 @@ def subject(subject):
             seconderyJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
         else:
             return render_template("subject.html", title=subject, subject=subject, primaryJSON=0, secondaryJSON=0,
-                                   bad=0)
+                                   bad=bad)
 
     return render_template("subject.html", title=subject, subject=subject, primaryJSON=primaryJSON,
-                           secondoryJSON=seconderyJSON, bad=1)
+                           secondoryJSON=seconderyJSON, bad=bad)
 
 
 @app.route("/subjects")
@@ -177,6 +181,25 @@ def logout():
 def load_user(user):
     db = db_session.create_session()
     return db.query(User).get(int(user))
+
+
+def get_all_tasks(subject, sort=False):
+    db = db_session.create_session()
+    average_score = {}
+    for i in range(1, len(subject_tasks[subject]) + 1):
+        points_of_tasks = db.query(TestSeparately).filter(TestSeparately.subject == subject,
+                                                          TestSeparately.user_id == current_user.id,
+                                                          TestSeparately.task_number == i).all()
+        summary = 0
+        num_of_tasks = 0
+        for task in points_of_tasks:
+            summary += int(task.score)
+            num_of_tasks += 1
+        average_score[i] = summary / num_of_tasks
+    if sort:
+        return dict(sorted(average_score.items(), key=lambda item: item[1]))
+    else:
+        return average_score
 
 
 def main():
