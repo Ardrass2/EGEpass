@@ -9,6 +9,8 @@ from data.scores import *
 from data import db_session
 from data.user import User
 from data.forms import *
+from data.date import *
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
@@ -121,11 +123,26 @@ def setting():
             flash("Пароли различаются", "Ошибка")
         else:
             db = db_session.create_session()
-            current_user.hashed_password.replace(current_user.set_password(form.change_password.data))
-            current_user.hashed_password = generate_password_hash(str(form.change_password.data))
+            if str(form.change_password.data) == str(form.confirm_password.data):
+                current_user.hashed_password.replace(current_user.set_password(form.change_password.data))
+                current_user.hashed_password = generate_password_hash(str(form.change_password.data))
+            if form.school:
+                current_user.school = form.school
             db.merge(current_user)
             db.commit()
+            flash("Успешно")
     return render_template("settings.html", title="Настройки", form=form)
+
+
+@app.route("/user/<id>")
+def users(id):
+    db = db_session.create_session()
+    user = db.query(User).filter(User.id == int(id)).first()
+    if user.role == "teacher":
+        role = "Учитель"
+    else:
+        role = "Ученик"
+    return render_template("user.html", name=user.username, role=role, school=user.school)
 
 
 @app.route("/subjects/<subject>")
@@ -203,7 +220,7 @@ def get_all_tasks(subject, sort=False):
 
 
 def main():
-    db_session.global_init("database.db")
+    db_session.global_init("static/database.db")
     app.run()
 
 

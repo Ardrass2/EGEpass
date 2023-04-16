@@ -2,6 +2,10 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, NumberRange
 from .user import User
+from .date import get_school_names
+
+class AddFriend(FlaskForm):
+    submit = SubmitField('Добавить в друзья')
 
 
 class RegistrationForm(FlaskForm):
@@ -14,9 +18,10 @@ class RegistrationForm(FlaskForm):
 
 
 class SettingsForm(FlaskForm):
-    change_password = PasswordField('Новый пароль', validators=[DataRequired(), Length(min=6)])
+    change_password = PasswordField('Новый пароль', validators=[Length(min=6)])
     confirm_password = PasswordField('Подтвердить пароль',
-                                     validators=[DataRequired(), Length(min=6), EqualTo(change_password)])
+                                     validators=[Length(min=6), EqualTo(change_password)])
+    school = SelectField('Выберите школу', choices=get_school_names()[1:])
     submit_pass = SubmitField('Подтвердить изменения')
 
 
