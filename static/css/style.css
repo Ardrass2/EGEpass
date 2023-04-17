@@ -171,3 +171,8 @@ input[type="number"] {
     justify-content: left;
     align-items: center;
 }
+.box-text {
+    background: #FBE8A6;
+    padding: 1.5rem;
+    border-radius: 1rem;
+}

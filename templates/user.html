@@ -1,9 +1,22 @@
 {% extends 'base.html'%}
 {% block content %}
-<div>Имя - {{ name }} </div>
-<div>Роль - {{ role }} </div>
-<div>Школа - {{ school }}</div>
+<div class="center">
+    <h1 class="text-center">Имя</h1>
+    <p class="box-text text-center fs-3">{{ name }}</p>
+</div>
+<div class="center">
+    <h1 class="text-center">Роль</h1>
+    <p class="box-text text-center fs-3">{{ role }}</p>
+</div>
+<div class="center">
+    <h1 class="text-center">Школа</h1>
+    <p class="box-text text-center fs-3">{{ school }}</p>
+</div>
+{% if current_id != id %}
 <form>
-    <div></div>
+    <div>
+        <button type="submit" class="btn btn-primary" class="align-center">Отправить заявку</button>
+    </div>
 </form>
+{% endif %}
 {% endblock %}

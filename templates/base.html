@@ -28,6 +28,8 @@
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
                     <li><a class="nav-link text-dark">Здравствуйте, {{current_user.username}}!</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" href="/user/{{id}}">Моя страница</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('subjects') }}">Предметы</a>
                     </li>
                     <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('setting') }}">Настройки</a>

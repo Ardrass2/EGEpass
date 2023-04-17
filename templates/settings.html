@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<form method="POST" action="/settings">
+<form method="POST">
     {{ form.hidden_tag() }}
     <figure class="text-end text-white" style="background-color: #303C6C">
-      <blockquote class="blockquote">
-        <p>Per aspera ad astra</p>
-      </blockquote>
+        <blockquote class="blockquote">
+            <p>Per aspera ad astra</p>
+        </blockquote>
     </figure>
-    <h2>ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ Настройки</h2>
+    <h2>Настройки</h2>
     <h4>ㅤ</h4>
     <h4>ㅤ</h4>
     <h2>ㅤСмена Пароля</h2>
@@ -23,11 +23,9 @@
     <div class="form-group">
         {{ form.school.label(class="field-label") }} {{ form.school(class="form-control") }}
     </div>
-    <h4>ㅤ</h4>
-    {{ form.submit_pass(class="btn btn-primary") }}
-    <h4>ㅤ</h4>
+    <p>{{ form.submit() }}</p>
 </form>
 {% for msg in get_flashed_messages(True) %}
-    <div class="alert alert-danger" role="alert">{{msg[1]}}</div>
+<div class="alert alert-danger" role="alert">{{msg[1]}}</div>
 {% endfor %}
 {% endblock %}

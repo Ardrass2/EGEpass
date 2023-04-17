@@ -11,7 +11,6 @@ from data.user import User
 from data.forms import *
 from data.date import *
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
 login_manager = LoginManager()
@@ -22,7 +21,7 @@ login_manager.login_view = 'users.login'
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title='ЕГЭпасс')
+    return render_template('index.html', title='ЕГЭпасс', id=str(current_user.id))
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -40,7 +39,7 @@ def login():
             flash("Неправильный логин либо пароль", "Ошибка")
         else:
             flash("Пользователь не найден. Необходима регистрация.", "Ошибка")
-    return render_template("login.html", form=form, title='Вход')
+    return render_template("login.html", form=form, title='Вход', id=str(current_user.id))
 
 
 @app.route('/subjects/<subject>/stats')
@@ -57,7 +56,7 @@ def stats(subject):
     return render_template("stats.html", avg_score=round(
         sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3), best_score=best,
                            worst_score=worst, all_tasks=all_average, len=len, round=round, title=subject.capitalize(),
-                           subject_tasks=subject_tasks[subject], all_exams=all_exams)
+                           subject_tasks=subject_tasks[subject], all_exams=all_exams, id=str(current_user.id))
 
 
 @app.route('/add_result/<subject>', methods=['POST', 'GET'])
@@ -89,7 +88,7 @@ def add_result(subject):
         return redirect(url_for("login"))
     if subject in subject_tasks.keys():
         return render_template("add_result.html", subject=subject, tasks=subject_tasks[subject],
-                               enumerate=enumerate, title=subject.capitalize())
+                               enumerate=enumerate, title=subject.capitalize(), id=str(current_user.id))
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -110,28 +109,26 @@ def register():
             db.commit()
             login_user(user)
             return redirect(url_for("index"))
-    return render_template("register.html", title="Регистрация", form=form)
+    return render_template("register.html", title="Регистрация", form=form, id=str(current_user.id))
 
 
 @app.route('/settings', methods=['GET', 'POST'])
 def setting():
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
-    form = SettingsForm()
-    if form.validate_on_submit():
-        if not str(form.change_password.data) == str(form.confirm_password.data):
-            flash("Пароли различаются", "Ошибка")
-        else:
+    else:
+        form = SettingsForm()
+        if request.method == "POST":
             db = db_session.create_session()
             if str(form.change_password.data) == str(form.confirm_password.data):
-                current_user.hashed_password.replace(current_user.set_password(form.change_password.data))
+                current_user.hashed_password.replace(current_user.set_password(str(form.change_password.data)))
                 current_user.hashed_password = generate_password_hash(str(form.change_password.data))
             if form.school:
-                current_user.school = form.school
+                current_user.school = form.school.data
             db.merge(current_user)
             db.commit()
             flash("Успешно")
-    return render_template("settings.html", title="Настройки", form=form)
+        return render_template("settings.html", title="Настройки", form=form, id=str(current_user.id))
 
 
 @app.route("/user/<id>")
@@ -142,7 +139,8 @@ def users(id):
         role = "Учитель"
     else:
         role = "Ученик"
-    return render_template("user.html", name=user.username, role=role, school=user.school)
+    return render_template("user.html", name=user.username, role=role, school=user.school, current_id=str(current_user.id),
+                           id=str(id))
 
 
 @app.route("/subjects/<subject>")
@@ -151,7 +149,7 @@ def subject(subject):
         return redirect(url_for('index'))
     elif current_user.role == 'teacher':
         form = TeacherForm()
-        return render_template('teacher.html', title=subject, subject=subject, form=form)
+        return render_template('teacher.html', title=subject, subject=subject, form=form, id=str(current_user.id))
     else:
         bad = []
         db = db_session.create_session()
@@ -178,14 +176,14 @@ def subject(subject):
                                    bad=bad)
 
     return render_template("subject.html", title=subject, subject=subject, primaryJSON=primaryJSON,
-                           secondoryJSON=seconderyJSON, bad=bad)
+                           secondoryJSON=seconderyJSON, bad=bad, id=str(current_user.id))
 
 
 @app.route("/subjects")
 def subjects():
     if not current_user.is_authenticated:
         return redirect(url_for("index"))
-    return render_template("subjects.html", subjects=subject_tasks.keys(), title="Предметы")
+    return render_template("subjects.html", subjects=subject_tasks.keys(), title="Предметы", id=str(current_user.id))
 
 
 @app.route('/logout')

@@ -22,7 +22,7 @@ class SettingsForm(FlaskForm):
     confirm_password = PasswordField('Подтвердить пароль',
                                      validators=[Length(min=6), EqualTo(change_password)])
     school = SelectField('Выберите школу', choices=get_school_names()[1:])
-    submit_pass = SubmitField('Подтвердить изменения')
+    submit = SubmitField('Подтвердить изменения')
 
 
 class TeacherForm(FlaskForm):
