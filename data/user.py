@@ -15,10 +15,14 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     email = sqlalchemy.Column(sqlalchemy.String, nullable=True, unique=True)
     username = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     school = sqlalchemy.Column(sqlalchemy.String)
+    subject = sqlalchemy.Column(sqlalchemy.String, default=None)
     role = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
+
+    def add_subject(self, subject):
+        self.subject = self.subject + subject
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

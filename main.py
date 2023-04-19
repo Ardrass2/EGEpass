@@ -39,7 +39,7 @@ def login():
             flash("Неправильный логин либо пароль", "Ошибка")
         else:
             flash("Пользователь не найден. Необходима регистрация.", "Ошибка")
-    return render_template("login.html", form=form, title='Вход', id=str(current_user.id))
+    return render_template("login.html", form=form, title='Вход')
 
 
 @app.route('/subjects/<subject>/stats')
@@ -109,7 +109,7 @@ def register():
             db.commit()
             login_user(user)
             return redirect(url_for("index"))
-    return render_template("register.html", title="Регистрация", form=form, id=str(current_user.id))
+    return render_template("register.html", title="Регистрация", form=form)
 
 
 @app.route('/settings', methods=['GET', 'POST'])
@@ -121,7 +121,6 @@ def setting():
         if request.method == "POST":
             db = db_session.create_session()
             if str(form.change_password.data) == str(form.confirm_password.data):
-                current_user.hashed_password.replace(current_user.set_password(str(form.change_password.data)))
                 current_user.hashed_password = generate_password_hash(str(form.change_password.data))
             if form.school:
                 current_user.school = form.school.data
@@ -135,12 +134,19 @@ def setting():
 def users(id):
     db = db_session.create_session()
     user = db.query(User).filter(User.id == int(id)).first()
+    form = AddFriend()
     if user.role == "teacher":
         role = "Учитель"
     else:
         role = "Ученик"
+    if request.method == 'POST':
+        db = db_session.create_session()
+        if user.role == "teacher":
+            relation_ship = Requestions(student_id=user.id, teacher_id=current_user.id)
+        elif user.role == "student":
+            relation_ship = Requestions(student_id=current_user.id, teacher_id=user.id)
     return render_template("user.html", name=user.username, role=role, school=user.school, current_id=str(current_user.id),
-                           id=str(id))
+                           id=str(id), form=form)
 
 
 @app.route("/subjects/<subject>")
@@ -218,7 +224,7 @@ def get_all_tasks(subject, sort=False):
 
 
 def main():
-    db_session.global_init("static/database.db")
+    db_session.global_init("db/database.db")
     app.run()
 
 
