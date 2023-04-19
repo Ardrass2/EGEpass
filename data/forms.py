@@ -5,7 +5,8 @@ from .user import User
 from .date import get_school_names
 
 class AddFriend(FlaskForm):
-    submit = SubmitField('Добавить в друзья')
+    friend_req = StringField('Имя пользователя', validators=[DataRequired()])
+    submit_friend = SubmitField('Добавить в друзья')
 
 
 class RegistrationForm(FlaskForm):

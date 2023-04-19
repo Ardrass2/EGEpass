@@ -53,6 +53,20 @@ user_needed {
     display: block;
 }
 
+#submit_friend {
+    position: relative;
+    width: 200px;
+    padding: 10px;
+    margin: 20px auto;
+    background: #B4DFE5;
+    color: black;
+    outline: none;
+    border: 0 solid;
+    cursor: pointer;
+    font-weight: bold;
+    display: block;
+}
+
 #submit {
     position: relative;
     width: 200px;

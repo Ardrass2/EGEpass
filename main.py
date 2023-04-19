@@ -5,6 +5,8 @@ import plotly.express as px
 import plotly
 import json
 from werkzeug.security import generate_password_hash
+
+from data.friends import Requestions
 from data.scores import *
 from data import db_session
 from data.user import User
@@ -145,8 +147,16 @@ def users(id):
             relation_ship = Requestions(student_id=user.id, teacher_id=current_user.id)
         elif user.role == "student":
             relation_ship = Requestions(student_id=current_user.id, teacher_id=user.id)
+    if form.validate_on_submit():
+        if not db.query(User).filter(User.username == (str(form.friend_req.data))):
+            flash('Такого пользователя не существует', 'Ошибка')
+        else:
+            user = db.query(User).filter(User.username == (str(form.friend_req.data)))
+            relation_ship = Requestions(student_id=user.id, teacher=current_user.id)
+            db.add(relation_ship)
+            db.commit()
     return render_template("user.html", name=user.username, role=role, school=user.school, current_id=str(current_user.id),
-                           id=str(id), form=form)
+                           id=str(id), current_user_role=current_user.role, form=form)
 
 
 @app.route("/subjects/<subject>")
