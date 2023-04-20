@@ -6,7 +6,7 @@ import plotly
 import json
 from werkzeug.security import generate_password_hash
 
-from data.friends import Requestions
+from data.friends import *
 from data.scores import *
 from data import db_session
 from data.user import User
@@ -132,32 +132,33 @@ def setting():
         return render_template("settings.html", title="Настройки", form=form, id=str(current_user.id))
 
 
-@app.route("/user/<id>")
+@app.route("/user/<id>", methods=["GET", "POST"])
 def users(id):
-    db = db_session.create_session()
-    user = db.query(User).filter(User.id == int(id)).first()
-    form = AddFriend()
-    if user.role == "teacher":
-        role = "Учитель"
-    else:
-        role = "Ученик"
-    if request.method == 'POST':
+    if current_user.is_authenticated:
         db = db_session.create_session()
+        user = db.query(User).filter(User.id == int(id)).first()
+        form = AddFriend()
+        is_request = False
         if user.role == "teacher":
-            relation_ship = Requestions(student_id=user.id, teacher_id=current_user.id)
-        elif user.role == "student":
-            relation_ship = Requestions(student_id=current_user.id, teacher_id=user.id)
-    if form.validate_on_submit():
-        if not db.query(User).filter(User.username == (str(form.friend_req.data))):
-            flash('Такого пользователя не существует', 'Ошибка')
+            role = "Учитель"
         else:
-            user = db.query(User).filter(User.username == (str(form.friend_req.data)))
-            relation_ship = Requestions(student_id=user.id, teacher=current_user.id)
-            db.add(relation_ship)
-            db.commit()
-    return render_template("user.html", name=user.username, role=role, school=user.school, current_id=str(current_user.id),
-                           id=str(id), current_user_role=current_user.role, form=form)
-
+            role = "Ученик"
+        requestions = db.query(Requestions).filter(Requestions.teacher_id == current_user.id).all()
+        if db.query(Requestions).filter(
+                Requestions.student_id == current_user.id or Requestions.teacher_id == int(id)).first():
+            is_request = True
+        if request.method == "POST":
+            if not is_request:
+                friend = Requestions(student_id=current_user.id, teacher_id=int(id))
+                db.add(friend)
+                db.commit()
+                flash("Отправлено")
+            if current_user.id == int(id):
+                pass
+        return render_template("user.html", name=user.username, role=role, school=user.school,
+                               current_id=str(current_user.id), requestions=requestions,
+                               id=str(id), current_user_role=current_user.role, form=form, is_request=is_request,
+                               find_user=find_user)
 
 @app.route("/subjects/<subject>")
 def subject(subject):
@@ -231,6 +232,11 @@ def get_all_tasks(subject, sort=False):
         return dict(sorted(average_score.items(), key=lambda item: item[1]))
     else:
         return average_score
+
+
+def find_user(id):
+    db = db_session.create_session()
+    return db.query(User).filter(User.id == id).first()
 
 
 def main():

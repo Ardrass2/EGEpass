@@ -12,26 +12,27 @@
     <h1 class="text-center">Школа</h1>
     <p class="box-text text-center fs-3">{{ school }}</p>
 </div>
-{% if role == 'Учитель' %}
-<form>
-    <div class="center">
-        <h1> </h1>
-        <h1> </h1>
-        <h1 class="text-center">Добавление в друзья</h1>
-    </div>
-    <div class="form-group">
-        {{ form.friend_req.label(class="field-label") }} {{ form.friend_req }}
-    </div>
-    <div>
-        <h1> </h1>
-        {{ form.submit_friend(class="btn btn-primary") }}
-    </div>
+{% if not is_request and current_id != id and current_user_role == 'student' and role == 'Учитель' %}
+<form method=post action="/user/{{id}}">
+    {{ form.hidden_tag() }}
+    {{ form.submit(class="btn btn-primary") }}
 </form>
-{% elif role == 'Ученик' %}
-<form>
-    <div>
-        <button type="submit" class="btn btn-primary" class="align-center">Принять заявки</button>
+{% for msg in get_flashed_messages(True) %}
+<div class="alert alert-danger" role="success">{{msg}}</div>
+{% endfor %}
+{% elif current_id == id and role == "Учитель" %}
+<h1 class="text-center"> Заявки в друзья </h1>
+<form method="POST">
+<div class="request">
+    {% for request in requestions%}
+    <div class="grid3">
+        <div>
+            <h2 class="text-center">Имя {{find_user(request.student_id).username}}</h2>
+        </div>
+        <div><h2 class="text-center">Школа {{find_user(request.student_id).school}}</h2></div>
     </div>
+    {% endfor %}
+</div>>
 </form>
 {% endif %}
 {% endblock %}

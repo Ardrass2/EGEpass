@@ -20,6 +20,6 @@ class Friends(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'friends'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    request_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
+    request_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('study_requests.id'))
     student_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
     teacher_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))

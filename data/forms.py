@@ -1,12 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, NumberRange
-from .user import User
 from .date import get_school_names
 
+
 class AddFriend(FlaskForm):
-    friend_req = StringField('Имя пользователя', validators=[DataRequired()])
-    submit_friend = SubmitField('Добавить в друзья')
+    submit = SubmitField('Добавить учителя')
+    submit_friend = SubmitField("Принять запрос")
 
 
 class RegistrationForm(FlaskForm):
@@ -27,8 +27,8 @@ class SettingsForm(FlaskForm):
 
 
 class TeacherForm(FlaskForm):
-    user_needed = StringField('Имя ученика, покашта', validators=[DataRequired()])
-    submit_user = SubmitField('ТАКТОЧНА')
+    user_needed = SelectField('Имя ученика', choices='', validators=[DataRequired()])
+    submit_user = SubmitField('Выбрать')
 
 
 class LoginForm(FlaskForm):

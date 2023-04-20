@@ -30,15 +30,6 @@ input {
     display: block;
 }
 
-user_needed {
-    border-radius: 10px;
-    margin: 0 auto;
-    padding: 10px;
-    border: 0;
-    box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
-    display: block;
-}
-
 #role {
     border-radius: 10px;
     position: relative;
@@ -177,6 +168,20 @@ input[type="number"] {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(49%, 49%));
     grid-gap: 20px;
+}
+.request {
+background:#303C6C;
+padding: 10px
+}
+.grid3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(30%, 30%));
+    grid-gap: 20px;
+}
+.grid3 > div {
+    background: #FBE8A6;
+    padding: 1.5rem;
+    border-radius: 1rem;
 }
 .form-control-file {
     display: grid;

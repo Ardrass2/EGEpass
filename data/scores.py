@@ -1,4 +1,3 @@
-from dns.serial import Serial
 from flask_login import UserMixin
 import datetime
 import sqlalchemy
