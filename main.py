@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 import plotly.graph_objs as go
-import plotly.express as px
+#import plotly.express as px
 import plotly
 import json
 from werkzeug.security import generate_password_hash
@@ -154,7 +154,13 @@ def users(id):
                 db.commit()
                 flash("Отправлено")
             if current_user.id == int(id):
-                pass
+                for requezt in requestions:
+                    student_id = find_user(requezt.student_id).id
+                    request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
+                                                              Requestions.student_id == student_id).first()
+                    friendship = Friends(request_id=request_id.id, student_id=student_id, teacher_id=current_user.id)
+                    db.add(friendship)
+                    db.commit()
         return render_template("user.html", name=user.username, role=role, school=user.school,
                                current_id=str(current_user.id), requestions=requestions,
                                id=str(id), current_user_role=current_user.role, form=form, is_request=is_request,
