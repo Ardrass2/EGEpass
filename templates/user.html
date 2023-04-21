@@ -30,6 +30,7 @@
             <h2 class="text-center">Имя {{find_user(request.student_id).username}}</h2>
         </div>
         <div><h2 class="text-center">Школа {{find_user(request.student_id).school}}</h2></div>
+        {{ form.submit_friend(class="btn btn-primary") }}
     </div>
     {% endfor %}
 </div>>
