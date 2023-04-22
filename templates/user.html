@@ -10,7 +10,12 @@
 </div>
 <div class="center">
     <h1 class="text-center">Школа</h1>
-    <p class="box-text text-center fs-3">{{ school }}</p>
+    <p class="box-text text-center fs-3">{{ school }}
+        {% if current_id == id and role == "Ученик" %}
+        <br>
+        <a href="/add_teacher" class="btn btn-outline-primary">Найти учителей по школе</a>
+        {% endif %}
+    </p>
 </div>
 {% if not is_request and current_id != id and current_user_role == 'student' and role == 'Учитель' %}
 <form method=post action="/user/{{id}}">

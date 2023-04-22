@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
+{% if username %}
+<h1 class="text-center">{{ username }}</h1>
+{% else %}
+<h1></h1>
+{% endif %}
 <div class="grid1">
     <div>
         <h1 class="fs-1 fw-bold text-center">Статистика</h1>
@@ -9,7 +14,7 @@
         <h3>Всего написано пробников: <em>{{ len(all_exams) }}</em></h3>
     </div>
     <fieldset>
-        <legend class="fs-1 fw-bold text-center">Средний балл за каждый предмет</legend>
+        <legend class="fs-1 fw-bold text-center">Средний балл за каждое задание</legend>
         <div class="grid">
             {% for task in all_tasks%}
             <div>
@@ -19,4 +24,22 @@
         </div>
     </fieldset>
 </div>
+{% if username %}
+    <div class="grid2">
+    <div id="primary-graph">
+        <script>
+            var graph = {{ primaryJSON | safe }};
+            Plotly.newPlot('primary-graph', graph.data, graph.layout);
+        </script>
+    </div>
+    {% if subject != 'математика (базовый)' %}
+    <div id="secondory-graph">
+        <script>
+            var graph = {{ secondoryJSON | safe }};
+            Plotly.newPlot('secondory-graph', graph.data, graph.layout);
+        </script>
+    </div>
+    </div>
+    {% endif %}
+{% endif %}
 {% endblock %}

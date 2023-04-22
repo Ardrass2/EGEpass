@@ -54,7 +54,7 @@ def stats(subject):
             all_secondary_results.append(exam.secondary_score)
         best = max(all_secondary_results) if all_secondary_results else 0
         worst = min(all_secondary_results) if all_secondary_results else 0
-        all_average = get_all_tasks(subject) if all_secondary_results else []
+        all_average = get_all_tasks(subject, current_user.id) if all_secondary_results else []
     return render_template("stats.html", avg_score=round(
         sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3), best_score=best,
                            worst_score=worst, all_tasks=all_average, len=len, round=round, title=subject.capitalize(),
@@ -148,6 +148,7 @@ def users(id):
         if db.query(Requestions).filter(
                 Requestions.student_id == current_user.id or Requestions.teacher_id == int(id)).first():
             is_request = True
+
         if request.method == "POST":
             if not is_request:
                 friend = Requestions(student_id=current_user.id, teacher_id=int(id))
@@ -155,27 +156,73 @@ def users(id):
                 db.commit()
                 flash("Отправлено")
             elif current_user.id == int(id):
-                if request.form["submit_friend"]:
-                    student_id = find_user(request.form["submit_friend"]).id
-                    request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
-                                                              Requestions.student_id == student_id).first()
-                    print(request_id.answer)
-                    request_id.answer = True
-                    print(request_id.answer)
-                    friendship = Friends(request_id=request_id.id, student_id=student_id, teacher_id=current_user.id)
-                    db.merge(request_id)
-                    db.add(friendship)
-                    db.commit()
-                elif request.form["disagree"]:
-                    request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
-                                                              Requestions.student_id == student_id).first()
-                    request_id.answer = False
-                    db.merge(request_id)
-                    db.commit()
+                student_id = find_user(request.form["submit_friend"]).id
+                is_friend = db.query(Requestions).filter(Requestions.teacher_id == current_user.id or
+                                                         Requestions.student_id == student_id).first().answer is not None
+                if not is_friend:
+                    if request.form["submit_friend"]:
+                        request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
+                                                                  Requestions.student_id == student_id).first()
+                        request_id.answer = True
+                        friendship = Friends(request_id=request_id.id, student_id=student_id,
+                                             teacher_id=current_user.id)
+                        if not is_friend:
+                            db.merge(request_id)
+                            db.add(friendship)
+                            db.commit()
+                    elif request.form["disagree"]:
+                        request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
+                                                                  Requestions.student_id == student_id).first()
+                        request_id.answer = False
+                        db.merge(request_id)
+                        db.commit()
         return render_template("user.html", name=user.username, role=role, school=user.school,
                                current_id=str(current_user.id), requestions=requestions,
                                id=str(id), current_user_role=current_user.role, form=form, is_request=is_request,
                                find_user=find_user)
+
+
+@app.route("/subject/<subject>/<user>")
+def teacher_stats(subject, user):
+    if current_user.is_authenticated and current_user.role == "teacher":
+        db = db_session.create_session()
+        if db.query(Friends).filter(Friends.teacher_id == current_user.id or Friends.student_id == user).first():
+            all_exams = db.query(Exams).filter(Exams.subject == subject, Exams.user_id == user).all()
+            all_secondary_results = []
+            for exam in all_exams:
+                all_secondary_results.append(exam.secondary_score)
+            best = max(all_secondary_results) if all_secondary_results else 0
+            worst = min(all_secondary_results) if all_secondary_results else 0
+            all_average = get_all_tasks(subject, user) if all_secondary_results else []
+            exams = db.query(Exams).filter(Exams.subject == subject, Exams.user_id == user).all()
+            if exams:
+                primary_scores = [exam.primary_score for exam in exams]
+                secondary_scores = [exam.secondary_score for exam in exams]
+                number = list(range(1, len(exams) + 1))
+
+                fig = px.line(x=number, y=primary_scores, labels={'x': 'Номер пробника', 'y': 'Количество баллов'},
+                              title='Первичные баллы')
+                primaryJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+                fig = px.line(x=number, y=secondary_scores, labels={'x': 'Номер пробника', 'y': 'Количество баллов'},
+                              title='Вторичные баллы')
+                seconderyJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            else:
+                return render_template("stats.html", avg_score=round(
+                    sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3),
+                                       best_score=best, worst_score=worst, all_tasks=all_average, len=len, round=round,
+                                       title=subject.capitalize(), subject_tasks=subject_tasks[subject],
+                                       all_exams=all_exams, id=str(user), subject=subject,
+                                       username=str(find_user(user).username).capitalize(), primaryJSON=0,
+                                       secondaryJSON=0)
+            return render_template("stats.html", avg_score=round(
+                sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3),
+                                   best_score=best, worst_score=worst, all_tasks=all_average, len=len, round=round,
+                                   title=subject.capitalize(), subject_tasks=subject_tasks[subject],
+                                   all_exams=all_exams, id=str(user), subject=subject,
+                                   username=str(find_user(user).username).capitalize(), primaryJSON=primaryJSON,
+                                   secondaryJSON=seconderyJSON)
+        else:
+            return f"""<h1>Нет доступа</h1>"""
 
 
 @app.route("/subjects/<subject>")
@@ -183,14 +230,13 @@ def subject(subject):
     if not current_user.is_authenticated:
         return redirect(url_for('index'))
     elif current_user.role == 'teacher':
-        form = TeacherForm()
         db = db_session.create_session()
         users = db.query(Friends).filter(Friends.teacher_id == current_user.id).all()
         usernames = []
         for user in users:
-            usernames.append(find_user(user.student_id).username)
-        return render_template('teacher.html', users=usernames, title=subject,
-                               subject=subject, form=form, id=str(current_user.id))
+            usernames.append([find_user(user.student_id).username, find_user(user.student_id)])
+        return render_template('teacher.html', users=usernames, title=subject.capitalize(),
+                               subject=subject, id=str(current_user.id))
     else:
         bad = []
         db = db_session.create_session()
@@ -220,6 +266,23 @@ def subject(subject):
                            secondoryJSON=seconderyJSON, bad=bad, id=str(current_user.id))
 
 
+@app.route('/add_teacher')
+def add_teacher():
+    if current_user.is_authenticated:
+        school = current_user.school
+        if school is not None:
+            db = db_session.create_session()
+            teachers = get_teachers(school)
+            friends = []
+            for teacher in teachers:
+                if db.query(Friends).filter(
+                        Friends.student_id == current_user.id or Friends.teacher_id == teacher.id).first():
+                    friends.append(teacher)
+            return render_template("add_teacher.html", school=school, teachers=teachers, friends=friends)
+        else:
+            return """Вы не добавили школу"""
+
+
 @app.route("/subjects")
 def subjects():
     if not current_user.is_authenticated:
@@ -239,23 +302,28 @@ def load_user(user):
     return db.query(User).get(int(user))
 
 
-def get_all_tasks(subject, sort=False):
+def get_all_tasks(subject, ids, sort=False):
     db = db_session.create_session()
     average_score = {}
     for i in range(1, len(subject_tasks[subject]) + 1):
         points_of_tasks = db.query(TestSeparately).filter(TestSeparately.subject == subject,
-                                                          TestSeparately.user_id == current_user.id,
+                                                          TestSeparately.user_id == ids,
                                                           TestSeparately.task_number == i).all()
         summary = 0
         num_of_tasks = 0
         for task in points_of_tasks:
             summary += int(task.score)
             num_of_tasks += 1
-        average_score[i] = summary / num_of_tasks
+        average_score[i] = summary / num_of_tasks if num_of_tasks != 0 else 0
     if sort:
         return dict(sorted(average_score.items(), key=lambda item: item[1]))
     else:
         return average_score
+
+
+def get_teachers(school):
+    db = db_session.create_session()
+    return db.query(User).filter(User.school == school or User.role == "teacher").all()
 
 
 def find_user(id):

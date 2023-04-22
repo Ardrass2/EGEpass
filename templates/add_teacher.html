@@ -1,0 +1,18 @@
+{% extends 'base.html'%}
+
+{% block content %}
+<h1 class="text-left">{{ school }}</h1>
+<ul>
+{% for teacher in teachers %}
+    <li>
+        <p class="fs-8 text">
+        <a href="/user/{{teacher.id}}" class="link-opacity-10-hover fs-8 text">{{teacher.username}}</a>
+        {% if teacher in friends %}
+            <u>ваш учитель</u>
+        {% endif %}
+        </p>
+
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}
