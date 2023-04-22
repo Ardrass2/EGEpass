@@ -21,19 +21,22 @@
 <div class="alert alert-danger" role="success">{{msg}}</div>
 {% endfor %}
 {% elif current_id == id and role == "Учитель" %}
-<h1 class="text-center"> Заявки в друзья </h1>
-<form method="POST">
-<div class="request">
-    {% for request in requestions%}
-    <div class="grid3">
-        <div>
-            <h2 class="text-center">Имя {{find_user(request.student_id).username}}</h2>
+<h1 class="text-center">Заявки в друзья</h1>
+<form method=post action="/user/{{id}}">
+    {{ form.hidden_tag() }}
+    <div class="request">
+        {% for request in requestions %}
+        <div class="grid3">
+            <div>
+                <h2 class="text-center">Имя {{find_user(request.student_id).username}}</h2>
+            </div>
+            <div>
+                <h2 class="text-center">Школа {{find_user(request.student_id).school}}</h2>
+            </div>
+            {{ form.submit_friend(value=find_user(request.student_id).id) }}
         </div>
-        <div><h2 class="text-center">Школа {{find_user(request.student_id).school}}</h2></div>
-        {{ form.submit_friend(class="btn btn-primary") }}
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>>
 </form>
 {% endif %}
 {% endblock %}

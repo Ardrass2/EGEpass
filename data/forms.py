@@ -7,6 +7,7 @@ from .date import get_school_names
 class AddFriend(FlaskForm):
     submit = SubmitField('Добавить учителя')
     submit_friend = SubmitField("Принять запрос")
+    disagree = SubmitField('Отклонить')
 
 
 class RegistrationForm(FlaskForm):

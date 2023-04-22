@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 import plotly.graph_objs as go
-#import plotly.express as px
+# import plotly.express as px
 import plotly
 import json
 from werkzeug.security import generate_password_hash
@@ -143,7 +143,8 @@ def users(id):
             role = "Учитель"
         else:
             role = "Ученик"
-        requestions = db.query(Requestions).filter(Requestions.teacher_id == current_user.id).all()
+        requestions = db.query(Requestions).filter(Requestions.teacher_id == current_user.id or
+                                                   Requestions.answer == None).all()
         if db.query(Requestions).filter(
                 Requestions.student_id == current_user.id or Requestions.teacher_id == int(id)).first():
             is_request = True
@@ -153,18 +154,29 @@ def users(id):
                 db.add(friend)
                 db.commit()
                 flash("Отправлено")
-            if current_user.id == int(id):
-                for requezt in requestions:
-                    student_id = find_user(requezt.student_id).id
+            elif current_user.id == int(id):
+                if request.form["submit_friend"]:
+                    student_id = find_user(request.form["submit_friend"]).id
                     request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
                                                               Requestions.student_id == student_id).first()
+                    print(request_id.answer)
+                    request_id.answer = True
+                    print(request_id.answer)
                     friendship = Friends(request_id=request_id.id, student_id=student_id, teacher_id=current_user.id)
+                    db.merge(request_id)
                     db.add(friendship)
+                    db.commit()
+                elif request.form["disagree"]:
+                    request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
+                                                              Requestions.student_id == student_id).first()
+                    request_id.answer = False
+                    db.merge(request_id)
                     db.commit()
         return render_template("user.html", name=user.username, role=role, school=user.school,
                                current_id=str(current_user.id), requestions=requestions,
                                id=str(id), current_user_role=current_user.role, form=form, is_request=is_request,
                                find_user=find_user)
+
 
 @app.route("/subjects/<subject>")
 def subject(subject):

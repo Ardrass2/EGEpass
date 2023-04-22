@@ -13,6 +13,7 @@ class Requestions(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     student_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
     teacher_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
+    answer = sqlalchemy.Column(sqlalchemy.BOOLEAN)
     time = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
 
