@@ -1,17 +1,15 @@
-{% extends 'base.html' %}
-
+{% extends 'base.html'%}
 {% block content %}
-<form method="POST" action="/settings">
-    {{ form.hidden_tag() }}
-    <figure class="text-end text-white" style="background-color: #303C6C">
-      <blockquote class="blockquote">
-        <p>Per aspera ad astra</p>
-      </blockquote>
-    </figure>
-    <h1 class="text-center">Выбор ученика</h1>
-
-</form>
-{% for msg in get_flashed_messages(True) %}
-    <div class="alert alert-danger" role="alert">{{msg[1]}}</div>
-{% endfor %}
+<h2>Ученики</h2>
+<div class="cards">
+    {% for user in users %}
+    <div class="card">
+        <img src="/static/img/logo.png" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title">{{user.capitalize()}}</h5>
+            <a href="subjects/{{subject}}" class="btn btn-outline-primary">Перейти</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

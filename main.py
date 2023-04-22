@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 import plotly.graph_objs as go
-# import plotly.express as px
+import plotly.express as px
 import plotly
 import json
 from werkzeug.security import generate_password_hash
@@ -184,7 +184,13 @@ def subject(subject):
         return redirect(url_for('index'))
     elif current_user.role == 'teacher':
         form = TeacherForm()
-        return render_template('teacher.html', title=subject, subject=subject, form=form, id=str(current_user.id))
+        db = db_session.create_session()
+        users = db.query(Friends).filter(Friends.teacher_id == current_user.id).all()
+        usernames = []
+        for user in users:
+            usernames.append(find_user(user.student_id).username)
+        return render_template('teacher.html', users=usernames, title=subject,
+                               subject=subject, form=form, id=str(current_user.id))
     else:
         bad = []
         db = db_session.create_session()
