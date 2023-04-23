@@ -23,7 +23,7 @@
     {% endif %}
 </div>
 {% if not is_request and id != id_s and current_user_role == 'student' and role == 'Учитель' %}
-<form method=post action="/user/{{id}}">
+<form method=post action="/user/{{id_s}}">
     {{ form.hidden_tag() }}
     {{ form.submit(class="btn btn-primary") }}
 </form>

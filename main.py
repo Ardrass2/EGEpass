@@ -147,15 +147,12 @@ def users(id):
             role = "Учитель"
         else:
             role = "Ученик"
-        requestion = db.query(Requestions).filter(Requestions.teacher_id == current_user.id).all()
-        for r in requestion:
-            if r.answer is None:
-                requestions.append(r.answer)
+        requestions = db.query(Requestions).filter(Requestions.teacher_id == current_user.id).all()
         for elem in requestions:
             if elem.answer is not None:
                 requestions.remove(elem)
         if db.query(Requestions).filter(
-                Requestions.student_id == current_user.id or Requestions.teacher_id == int(id)).first():
+                Requestions.student_id == current_user.id, Requestions.teacher_id == int(id)).first():
             is_request = True
         if request.method == "POST":
             if not is_request:
@@ -386,7 +383,7 @@ def get_all_tasks(subject, ids, sort=False):
 
 def get_teachers(school):
     db = db_session.create_session()
-    return db.query(User).filter(User.school == school or User.role == "teacher").all()
+    return db.query(User).filter(User.school == school, User.role == "teacher").all()
 
 
 def find_user(id):
