@@ -1,27 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<figure class="text-end text-white" style="background-color: #303C6C">
+    <blockquote class="blockquote">
+        <p>Per aspera ad astra</p>
+    </blockquote>
+</figure>
+<h1 class="text-center">Настройки</h1>
 <form method="POST">
     {{ form.hidden_tag() }}
-    <figure class="text-end text-white" style="background-color: #303C6C">
-        <blockquote class="blockquote">
-            <p>Per aspera ad astra</p>
-        </blockquote>
-    </figure>
-    <h2>Настройки</h2>
-    <h4>ㅤ</h4>
-    <h4>ㅤ</h4>
-    <h2>ㅤСмена Пароля</h2>
-    <h>ㅤㅤОбязательно запомните новый пароль</h>
-    <div class="form-group">
-        {{ form.change_password.label(class="field-label") }} {{ form.change_password }}
-    </div>
-    <h1>ㅤ</h1>
-    <div class="form-group">
-        {{ form.confirm_password.label(class="field-label") }} {{ form.confirm_password }}
-    </div>
-    <div class="form-group">
-        {{ form.school.label(class="field-label") }} {{ form.school(class="form-control") }}
+    <div class="fiftyfifty">
+        <div>
+            <h2 class="text-center">Смена Пароля</h2>
+            <div class="form-group">
+                <h4>{{ form.change_password.label() }}</h4> {{ form.change_password(class="form-control") }}
+                <div class="form-text" id="basic-addon4">Менять пароль можно раз в 2 недели, будьте аккуратны. Он должен
+                    содержать более 6 символов. Обязательно запомните новый пароль.
+                </div>
+            </div>
+            <div class="form-group">
+                <h4>{{ form.confirm_password.label() }}</h4> {{ form.confirm_password(class="form-control") }}
+            </div>
+        </div>
+        <div>
+            <h2 class="text-center">Другое</h2>
+            <div class="form-group">
+                <h4>{{ form.school.label() }}</h4> {{ form.school(class="form-control") }}
+            </div>
+        </div>
     </div>
     <p>{{ form.submit() }}</p>
 </form>

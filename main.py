@@ -6,6 +6,7 @@ import plotly
 import json
 from werkzeug.security import generate_password_hash
 
+from data.user_api import *
 from data.friends import *
 from data.scores import *
 from data import db_session
@@ -23,7 +24,10 @@ login_manager.login_view = 'users.login'
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title='ЕГЭпасс', id=str(current_user.id))
+    if current_user.is_authenticated:
+        return render_template('index.html', title='ЕГЭпасс', id=str(current_user.id))
+    else:
+        return render_template('index.html', title="ЕГЭпасс")
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -143,12 +147,16 @@ def users(id):
             role = "Учитель"
         else:
             role = "Ученик"
-        requestions = db.query(Requestions).filter(Requestions.teacher_id == current_user.id or
-                                                   Requestions.answer == None).all()
+        requestion = db.query(Requestions).filter(Requestions.teacher_id == current_user.id).all()
+        for r in requestion:
+            if r.answer is None:
+                requestions.append(r.answer)
+        for elem in requestions:
+            if elem.answer is not None:
+                requestions.remove(elem)
         if db.query(Requestions).filter(
                 Requestions.student_id == current_user.id or Requestions.teacher_id == int(id)).first():
             is_request = True
-
         if request.method == "POST":
             if not is_request:
                 friend = Requestions(student_id=current_user.id, teacher_id=int(id))
@@ -156,29 +164,33 @@ def users(id):
                 db.commit()
                 flash("Отправлено")
             elif current_user.id == int(id):
-                student_id = find_user(request.form["submit_friend"]).id
+                if "submit_friend" in dict(request.form):
+                    student_id = find_user(int(request.form["submit_friend"])).id
+                elif "disagree" in dict(request.form):
+                    student_id = find_user(int(request.form["disagree"])).id
                 is_friend = db.query(Requestions).filter(Requestions.teacher_id == current_user.id or
-                                                         Requestions.student_id == student_id).first().answer is not None
-                if not is_friend:
-                    if request.form["submit_friend"]:
+                                                         Requestions.student_id == student_id).first().answer is None
+                if is_friend:
+                    if "submit_friend" in dict(request.form):
                         request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
                                                                   Requestions.student_id == student_id).first()
-                        request_id.answer = True
+                        request_id.answer = 1
                         friendship = Friends(request_id=request_id.id, student_id=student_id,
                                              teacher_id=current_user.id)
-                        if not is_friend:
+                        if is_friend and db.query(Requestions).filter(Requestions.teacher_id == current_user.id or
+                                                                      Requestions.student_id == student_id).first().answer is not False:
                             db.merge(request_id)
                             db.add(friendship)
                             db.commit()
-                    elif request.form["disagree"]:
+                    elif "disagree" in dict(request.form):
                         request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
                                                                   Requestions.student_id == student_id).first()
                         request_id.answer = False
                         db.merge(request_id)
                         db.commit()
         return render_template("user.html", name=user.username, role=role, school=user.school,
-                               current_id=str(current_user.id), requestions=requestions,
-                               id=str(id), current_user_role=current_user.role, form=form, is_request=is_request,
+                               id=str(current_user.id), requestions=requestions,
+                               id_s=str(id), current_user_role=current_user.role, form=form, is_request=is_request,
                                find_user=find_user)
 
 
@@ -242,7 +254,7 @@ def subject(subject):
         db = db_session.create_session()
         exams = db.query(Exams).filter(Exams.subject == subject, Exams.user_id == current_user.id).all()
         if exams:
-            a = get_all_tasks(subject, sort=True)
+            a = get_all_tasks(subject, current_user.id, sort=True)
             for elem in a:
                 bad.append(f"{elem}({round(a[elem], 3)} баллов в среднем)")
                 if len(bad) > 3:
@@ -266,6 +278,48 @@ def subject(subject):
                            secondoryJSON=seconderyJSON, bad=bad, id=str(current_user.id))
 
 
+@app.route("/all_samples/<subject>/<int:id>")
+def samples(subject, id):
+    if current_user.is_authenticated and current_user.role == 'student':
+        db = db_session.create_session()
+        if id == current_user.id:
+            all_samples = db.query(Exams).filter(Exams.subject == subject.lower() or Exams.user_id == id).all()
+            return render_template("all_samples.html", enum=enumerate, subject=subject, samples=all_samples,
+                                   id=current_user.id, ids=id)
+    elif current_user.is_authenticated and current_user.role == 'teacher':
+        db = db_session.create_session()
+        if db.query(Friends).filter(Friends.teacher_id == current_user.id and Friends.student_id == id).all():
+            all_samples = db.query(Exams).filter(Exams.subject == subject.lower() or Exams.user_id == id).all()
+            return render_template("all_samples.html", enum=enumerate, subject=subject, samples=all_samples,
+                                   id=current_user.id, ids=id)
+    return "error"
+
+
+@app.route("/sample/<id>")
+def sample(id):
+    if current_user.is_authenticated:
+        db = db_session.create_session()
+        student_id = db.query(Exams).filter(Exams.id == id).first().user_id
+        scores = get_score_for_id(id)
+        score = []
+        for i in scores:
+            if type(i) == int:
+                score.append(scores[i])
+        return render_template("sample.html", scores=score, id=str(current_user.id),
+                               subject=subject_tasks[scores['subject']], len=len, s=scores['subject'].capitalize(),
+                               ids=id, student_id=student_id)
+
+
+@app.route('/add_teacher/added')
+def add_teacher_added():
+    if current_user.is_authenticated and current_user.role == "student":
+        db = db_session.create_session()
+        all_teachers = db.query(Friends).filter(Friends.student_id == current_user.id).all()
+        teachers = [db.query(User).filter(User.id == teacher.teacher_id).first() for teacher in all_teachers]
+        return render_template("add_teacher.html", school="Ваши учителя", teachers=teachers, students=teachers,
+                               id=current_user.id)
+
+
 @app.route('/add_teacher')
 def add_teacher():
     if current_user.is_authenticated:
@@ -278,7 +332,8 @@ def add_teacher():
                 if db.query(Friends).filter(
                         Friends.student_id == current_user.id or Friends.teacher_id == teacher.id).first():
                     friends.append(teacher)
-            return render_template("add_teacher.html", school=school, teachers=teachers, friends=friends)
+            return render_template("add_teacher.html", school=school, teachers=teachers, friends=friends,
+                                   id=current_user.id)
         else:
             return """Вы не добавили школу"""
 
@@ -300,6 +355,14 @@ def logout():
 def load_user(user):
     db = db_session.create_session()
     return db.query(User).get(int(user))
+
+
+def get_score_for_id(id):
+    db = db_session.create_session()
+    average_score = {"subject": db.query(TestSeparately).filter(TestSeparately.id == id).first().subject}
+    for scores in db.query(TestSeparately).filter(TestSeparately.exam_id == id).all():
+        average_score[scores.task_number] = scores.score
+    return average_score
 
 
 def get_all_tasks(subject, ids, sort=False):
@@ -332,6 +395,8 @@ def find_user(id):
 
 
 def main():
+    # app.register_blueprint(users_api, url_prefix='/api/users')
+    # app.register_blueprint(exams_blueprint, url_prefix='/api/exams')
     db_session.global_init("db/database.db")
     app.run()
 

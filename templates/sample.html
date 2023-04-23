@@ -1,0 +1,12 @@
+{% extends 'base.html'%}
+{% block content %}
+<h1 class="text-center">Баллы за пробник</h1>
+<div class="grid justify-content-center">
+    {% for i in range(len(scores))%}
+    <div>
+        <label>№{{ i + 1 }}: {{ scores[i] }} из {{ subject[i] }}</label>
+    </div>
+    {% endfor %}
+</div>
+<a href="/all_samples/{{s}}/{{student_id}}" class="btn btn-outline-primary">Назад</a>
+{% endblock %}

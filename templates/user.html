@@ -11,13 +11,18 @@
 <div class="center">
     <h1 class="text-center">Школа</h1>
     <p class="box-text text-center fs-3">{{ school }}
-        {% if current_id == id and role == "Ученик" %}
+        {% if id == id_s and role == "Ученик" %}
         <br>
         <a href="/add_teacher" class="btn btn-outline-primary">Найти учителей по школе</a>
         {% endif %}
     </p>
+    {% if id == id_s and role == "Ученик" %}
+    <div>
+        <a class="btn btn-outline-primary" href="/add_teacher/added">Список ваших учителей</a>
+    </div>
+    {% endif %}
 </div>
-{% if not is_request and current_id != id and current_user_role == 'student' and role == 'Учитель' %}
+{% if not is_request and id != id_s and current_user_role == 'student' and role == 'Учитель' %}
 <form method=post action="/user/{{id}}">
     {{ form.hidden_tag() }}
     {{ form.submit(class="btn btn-primary") }}
@@ -25,7 +30,7 @@
 {% for msg in get_flashed_messages(True) %}
 <div class="alert alert-danger" role="success">{{msg}}</div>
 {% endfor %}
-{% elif current_id == id and role == "Учитель" %}
+{% elif id == id_s and role == "Учитель" %}
 <h1 class="text-center">Заявки в друзья</h1>
 <form method=post action="/user/{{id}}">
     {{ form.hidden_tag() }}
@@ -39,6 +44,7 @@
                 <h2 class="text-center">Школа {{find_user(request.student_id).school}}</h2>
             </div>
             {{ form.submit_friend(value=find_user(request.student_id).id) }}
+            {{ form.disagree(value=find_user(request.student_id).id) }}
         </div>
         {% endfor %}
     </div>

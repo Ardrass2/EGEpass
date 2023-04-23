@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="/static/img/minilogo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -15,19 +16,19 @@
 <body>
 {% block header %}
 <header>
-    <nav class="navbar" data-bs-theme="dark" style="background-color: #FBE8A6">
+    <nav class="navbar navbar-expand-lg navbar-dark" data-bs-theme="dark" style="background-color: #FBE8A6">
         <div class="container-fluid" style="background-color: #FBE8A6">
             <a class="navbar-brand" href="/">
-                <img src="/static/img/logo.png" alt="ЕГЭпасс" width="298" height="118">
+                <img src="/static/img/logo-cropped.svg" alt="ЕГЭпасс" width="150%" height="150%">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon navbar-dark"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav mr-auto ">
                     {% if current_user.is_authenticated %}
-                    <li><a class="nav-link text-dark">Здравствуйте, {{current_user.username}}!</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark">Здравствуйте, {{current_user.username}}!</a></li>
                     <li class="nav-item"><a class="nav-link text-dark" href="/user/{{id}}">Моя страница</a>
                     </li>
                     <li class="nav-item"><a class="nav-link text-dark" href="{{ url_for('subjects') }}">Предметы</a>
@@ -66,4 +67,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"
         integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ"
         crossorigin="anonymous"></script>
+<script>
+    $(function () {
+        var navMain = $(".navbar-collapse");
+        navMain.on("click", "a:not([data-toggle])", null, function () {
+            navMain.collapse('hide');
+        });
+    });
+</script>
 </html>

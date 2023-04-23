@@ -169,20 +169,24 @@ input[type="number"] {
     grid-template-columns: repeat(auto-fill, minmax(49%, 49%));
     grid-gap: 20px;
 }
+
 .request {
-background:#303C6C;
-padding: 10px
+    background: #303C6C;
+    padding: 10px
 }
+
 .grid3 {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(30%, 30%));
-    grid-gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(23%, 23%));
+    grid-gap: 1%;
 }
+
 .grid3 > div {
     background: #FBE8A6;
     padding: 1.5rem;
     border-radius: 1rem;
 }
+
 .form-control-file {
     display: grid;
     font-size: 0.875rem;
@@ -190,8 +194,37 @@ padding: 10px
     justify-content: left;
     align-items: center;
 }
+
 .box-text {
     background: #FBE8A6;
     padding: 1.5rem;
     border-radius: 1rem;
+}
+
+.fiftyfifty {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(49%, 49%));
+    grid-gap: 1%;
+}
+
+.fiftyfifty > div {
+    background: #FBE8A6;
+    padding: 1.5rem;
+    border-radius: 1rem;
+}
+
+
+.sample {
+    background: #FBE8A6;
+    align-content: center;
+    padding: 5px;
+    border-radius: 1rem;
+    margin: 5px;
+}
+
+.nav-item {
+    background: #D2FDFF;
+    padding: 5px;
+    border-radius: 1rem;
+    margin: 5px;
 }

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Ваши пробнике по предмету: {{subject}}</h1>
+<form method=post>
+    {% for i, elem in enum(samples) %}
+    <div class="sample">
+        <ul class="list-inline d-flex justify-content-around">
+            <li class="list-inline-item p-3">Пробник {{i + 1}}</li>
+            <li class="list-inline-item p-3">Первичный балл: <strong>{{elem.primary_score}}</strong></li>
+            <li class="list-inline-item p-3">Вторичный балл: <strong>{{elem.secondary_score}}</strong></li>
+            <a href="/sample/{{elem.id}}" class="btn btn-outline-primary p-3">Посмотреть баллы за каждое задание</a>
+        </ul>
+    </div>
+    {% endfor %}
+    {% if id != ids %}
+        <a href="/subject/{{subject.lower()}}/{{ids}}" class="btn btn-outline-primary">Назад</a>
+    {% else %}
+        <a href="/subjects/{{subject.lower()}}/stats" class="btn btn-outline-primary">Назад</a>
+    {% endif %}
+</form>
+{% endblock %}
