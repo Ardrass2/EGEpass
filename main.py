@@ -6,7 +6,7 @@ import plotly
 import json
 from werkzeug.security import generate_password_hash
 
-from data.user_api import *
+# from data.user_api import *
 from data.friends import *
 from data.scores import *
 from data import db_session
@@ -156,11 +156,14 @@ def users(id):
             is_request = True
         if request.method == "POST":
             if not is_request:
-                friend = Requestions(student_id=current_user.id, teacher_id=int(id))
-                db.add(friend)
-                db.commit()
-                flash("Отправлено")
-            elif current_user.id == int(id):
+                if db.query(User).filter(User.id == current_user.id, User.role == "teacher").first():
+                    pass
+                else:
+                    friend = Requestions(student_id=current_user.id, teacher_id=int(id))
+                    db.add(friend)
+                    db.commit()
+                    flash("Отправлено")
+            if current_user.id == int(id):
                 if "submit_friend" in dict(request.form):
                     student_id = find_user(int(request.form["submit_friend"])).id
                 elif "disagree" in dict(request.form):
@@ -171,7 +174,7 @@ def users(id):
                     if "submit_friend" in dict(request.form):
                         request_id = db.query(Requestions).filter(Requestions.teacher_id == current_user.id,
                                                                   Requestions.student_id == student_id).first()
-                        request_id.answer = 1
+                        request_id.answer = True
                         friendship = Friends(request_id=request_id.id, student_id=student_id,
                                              teacher_id=current_user.id)
                         if is_friend and db.query(Requestions).filter(Requestions.teacher_id == current_user.id or

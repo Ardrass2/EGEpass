@@ -228,3 +228,10 @@ input[type="number"] {
     border-radius: 1rem;
     margin: 5px;
 }
+
+.disagree {
+    align-content:center;
+   background: #B4DFE5;
+   width: 50%;
+   height: 50%;
+}
