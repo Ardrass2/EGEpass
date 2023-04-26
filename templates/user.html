@@ -43,8 +43,8 @@
             <div>
                 <h2 class="text-center">Школа {{find_user(request.student_id).school}}</h2>
             </div>
-            {{ form.submit_friend(value=find_user(request.student_id).id) }}
-            {{ form.disagree(value=find_user(request.student_id).id) }}
+            <div class="text-center">Принять пользователя {{ form.submit_friend(value=find_user(request.student_id).id) }}</div>
+            <div class="text-center">Отклонить пользователя {{ form.disagree(class="disagree", value=find_user(request.student_id).id) }}</div>
         </div>
         {% endfor %}
     </div>
