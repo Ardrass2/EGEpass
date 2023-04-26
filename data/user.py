@@ -29,3 +29,9 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
+
+    def serialize(self, include_email=True, include_password=False):
+        data = SerializerMixin.to_dict(self)
+        del data['email']
+        del data['hashed_password']
+        return data
