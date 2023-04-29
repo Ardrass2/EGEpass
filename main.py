@@ -6,7 +6,7 @@ import plotly
 import json
 from werkzeug.security import generate_password_hash
 
-# from data.user_api import *
+from data.user_api import *
 from data.friends import *
 from data.scores import *
 from data import db_session
