@@ -16,6 +16,12 @@ class Requestions(SqlAlchemyBase, SerializerMixin):
     answer = sqlalchemy.Column(sqlalchemy.Boolean, default=None)
     time = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
+    def serialize(self, answ=True):
+        data = SerializerMixin.to_dict(self)
+        if not answ:
+            del data['answer']
+        return data
+
 
 class Friends(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'friends'
@@ -24,3 +30,8 @@ class Friends(SqlAlchemyBase, SerializerMixin):
     request_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('study_requests.id'))
     student_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
     teacher_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
+
+    def serialize(self):
+        data = SerializerMixin.to_dict(self)
+        del data['request_id']
+        return data

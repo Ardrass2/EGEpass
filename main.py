@@ -6,7 +6,7 @@ import plotly
 import json
 from werkzeug.security import generate_password_hash
 
-# from data.user_api import *
+from data.user_api import *
 from data.friends import *
 from data.scores import *
 from data import db_session
@@ -16,6 +16,7 @@ from data.date import *
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
+app.config['JSON_AS_ASCII'] = False
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'users.login'
@@ -395,7 +396,7 @@ def find_user(id):
 
 
 def main():
-    # app.register_blueprint(users_api, url_prefix='/api/users')
+    app.register_blueprint(users_api, url_prefix='/api/users')
     # app.register_blueprint(exams_blueprint, url_prefix='/api/exams')
     db_session.global_init("db/database.db")
     app.run()
