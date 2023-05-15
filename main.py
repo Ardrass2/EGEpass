@@ -33,11 +33,11 @@ def index():
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-    db = db_session.create_session()
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
+        db = db_session.create_session()
         user = db.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
@@ -127,7 +127,7 @@ def setting():
         form = SettingsForm()
         if request.method == "POST":
             db = db_session.create_session()
-            if str(form.change_password.data) == str(form.confirm_password.data):
+            if str(form.change_password.data) == str(form.confirm_password.data) and len(str(form.change_password.data)) >= 6:
                 current_user.hashed_password = generate_password_hash(str(form.change_password.data))
             if form.school:
                 current_user.school = form.school.data
