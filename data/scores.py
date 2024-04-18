@@ -27,3 +27,12 @@ class Exams(SqlAlchemyBase, SerializerMixin):
     subject = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     primary_score = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, default=0)
     secondary_score = sqlalchemy.Column(sqlalchemy.Integer, nullable=True, default=0)
+
+
+class Uploaded(SqlAlchemyBase, SerializerMixin):
+    __tablename__ = 'files'
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
+    exam_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("exams.id"))
+    file_name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    data = sqlalchemy.Column(sqlalchemy.LargeBinary, nullable=True)

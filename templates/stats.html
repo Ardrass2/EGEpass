@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if username %}
-<h1 class="text-center">{{ username }}</h1>
+<h1 class="text-center">{{ username.title() }}</h1>
 {% else %}
 <h1></h1>
 {% endif %}
@@ -12,7 +12,10 @@
         <h3>Лучший балл за пробники: {{ best_score }}</h3>
         <h3>Худший балл за пробники: {{ worst_score }}</h3>
         <h3>Всего написано пробников: <em>{{ len(all_exams) }}</em></h3>
-        <a href="/all_samples/{{title}}/{{id}}" class="btn btn-outline-primary" >Все пробники</a>
+        <a href="/all_samples/{{title}}/{{student_id}}" class="btn btn-outline-primary" >Все пробники</a>
+        {%if username%}
+           <a href="{{student_id}}/files" class="btn btn-outline-primary">Файлы</a>
+        {%endif%}
     </div>
     <fieldset>
         <legend class="fs-1 fw-bold text-center">Средний балл за каждое задание</legend>

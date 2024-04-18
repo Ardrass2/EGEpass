@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect, url_for, flash, request
+from io import BytesIO
+from flask import Flask, render_template, redirect, url_for, flash, request, send_file, send_from_directory
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 import plotly.graph_objs as go
 import plotly.express as px
@@ -63,7 +64,8 @@ def stats(subject):
     return render_template("stats.html", avg_score=round(
         sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3), best_score=best,
                            worst_score=worst, all_tasks=all_average, len=len, round=round, title=subject.capitalize(),
-                           subject_tasks=subject_tasks[subject], all_exams=all_exams, id=str(current_user.id))
+                           subject_tasks=subject_tasks[subject], all_exams=all_exams, student_id=str(current_user.id),
+                           id=str(current_user.id))
 
 
 @app.route('/add_result/<subject>', methods=['POST', 'GET'])
@@ -89,6 +91,12 @@ def add_result(subject):
                 scores = TestSeparately(user_id=current_user.id, exam_id=exam.id, task_number=i + 1, score=score,
                                         subject=exam.subject)
                 db.add(scores)
+            file = request.files['file']
+            file_data = file.read()
+            if file_data:
+                upload_file = Uploaded(user_id=current_user.id, exam_id=exam.id, file_name=file.filename,
+                                       data=file_data)
+                db.add(upload_file)
             db.commit()
             return redirect(url_for(f"subjects"))
     else:
@@ -127,7 +135,8 @@ def setting():
         form = SettingsForm()
         if request.method == "POST":
             db = db_session.create_session()
-            if str(form.change_password.data) == str(form.confirm_password.data) and len(str(form.change_password.data)) >= 6:
+            if str(form.change_password.data) == str(form.confirm_password.data) and len(
+                    str(form.change_password.data)) >= 6:
                 current_user.hashed_password = generate_password_hash(str(form.change_password.data))
             if form.school:
                 current_user.school = form.school.data
@@ -195,6 +204,34 @@ def users(id):
                                find_user=find_user)
 
 
+@app.route("/subject/<subject>/<user>/files/download/<exam_id>")
+def download_file(subject, user, exam_id):
+    if current_user.is_authenticated and current_user.role == "teacher":
+        db = db_session.create_session()
+        if db.query(Friends).filter(Friends.teacher_id == current_user.id and Friends.student_id == user).first():
+            file = db.query(Uploaded).filter(Uploaded.user_id == user, Uploaded.exam_id == exam_id).first()
+            if file:
+                return send_file(BytesIO(file.data), download_name=file.file_name, as_attachment=True)
+            return f"""<h1>Файл не найден</h1>"""
+        return f"""<h1>Нет доступа</h1>"""
+    return f"""<h1>Нет доступа</h1>"""
+
+
+@app.route("/subject/<subject>/<user>/files")
+def look_on_student_files(subject, user):
+    if current_user.is_authenticated and current_user.role == "teacher":
+        db = db_session.create_session()
+        if db.query(Friends).filter(Friends.teacher_id == current_user.id or Friends.student_id == user).first():
+            files = [elem.file_name for elem in db.query(Uploaded).filter(Uploaded.user_id == user).all()]
+            exam_id = [elem.exam_id for elem in db.query(Uploaded).filter(Uploaded.user_id == user).all()]
+            return render_template("files_read.html", files=files, len=len, exam_id=exam_id, id=str(current_user.id),
+                                   student_id=str(user), subject=subject)
+        else:
+            return f"""<h1>Нет доступа</h1>"""
+    else:
+        return f"""<h1>Нет доступа</h1>"""
+
+
 @app.route("/subject/<subject>/<user>")
 def teacher_stats(subject, user):
     if current_user.is_authenticated and current_user.role == "teacher":
@@ -224,14 +261,15 @@ def teacher_stats(subject, user):
                     sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3),
                                        best_score=best, worst_score=worst, all_tasks=all_average, len=len, round=round,
                                        title=subject.capitalize(), subject_tasks=subject_tasks[subject],
-                                       all_exams=all_exams, id=str(user), subject=subject,
+                                       all_exams=all_exams, student_id=str(user), id=str(current_user.id),
+                                       subject=subject,
                                        username=str(find_user(user).username).capitalize(), primaryJSON=0,
                                        secondaryJSON=0)
             return render_template("stats.html", avg_score=round(
                 sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3),
                                    best_score=best, worst_score=worst, all_tasks=all_average, len=len, round=round,
                                    title=subject.capitalize(), subject_tasks=subject_tasks[subject],
-                                   all_exams=all_exams, id=str(user), subject=subject,
+                                   all_exams=all_exams, student_id=str(user), id=str(current_user.id), subject=subject,
                                    username=str(find_user(user).username).capitalize(), primaryJSON=primaryJSON,
                                    secondaryJSON=seconderyJSON)
         else:
@@ -399,7 +437,7 @@ def main():
     app.register_blueprint(users_api, url_prefix='/api/users')
     # app.register_blueprint(exams_blueprint, url_prefix='/api/exams')
     db_session.global_init("db/database.db")
-    app.run()
+    app.run(debug=True)
 
 
 if __name__ == '__main__':

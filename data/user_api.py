@@ -1,7 +1,10 @@
+from io import BytesIO
+
 from flask import jsonify
 from flask_restful import Resource
 
 from .db_session import *
+from .scores import *
 from .user import *
 from .friends import *
 from flask import Blueprint

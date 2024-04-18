@@ -1,0 +1,12 @@
+{% extends 'base.html'%}
+{% block content %}
+<h2> Загруженные файлы</h2>
+<ul>
+    {% for i in range(len(files)) %}
+    <li><h3>Пробник № {{exam_id[i]}}</h3>
+        <h5><a href="./files/download/{{exam_id[i]}}" target="_blank">{{ files[i] }}</a></h5>
+    </li>
+    {% endfor %}
+</ul>
+<a href="/subject/{{subject}}/{{student_id}}" class="btn btn-outline-primary">Назад</a>
+{% endblock %}
