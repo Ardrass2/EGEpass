@@ -5,6 +5,7 @@ import plotly.graph_objs as go
 import plotly.express as px
 import plotly
 import json
+import os
 from werkzeug.security import generate_password_hash
 
 from data.user_api import *
@@ -22,6 +23,20 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'users.login'
 
+# Initialize Database at module level for WSGI compatibility
+db_file = "db/database.db"
+# Use /tmp for read-only environments (Netlify Functions / AWS Lambda)
+if os.environ.get("AWS_LAMBDA_FUNCTION_NAME") or os.environ.get("NETLIFY"):
+    db_file = "/tmp/database.db"
+else:
+    # Ensure local directory exists
+    os.makedirs("db", exist_ok=True)
+
+db_session.global_init(db_file)
+
+# Register blueprints at module level
+app.register_blueprint(users_api, url_prefix='/api/users')
+# app.register_blueprint(exams_blueprint, url_prefix='/api/exams')
 
 @app.route('/')
 @app.route('/index')
@@ -61,11 +76,12 @@ def stats(subject):
         best = max(all_secondary_results) if all_secondary_results else 0
         worst = min(all_secondary_results) if all_secondary_results else 0
         all_average = get_all_tasks(subject, current_user.id) if all_secondary_results else []
-    return render_template("stats.html", avg_score=round(
-        sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3), best_score=best,
-                           worst_score=worst, all_tasks=all_average, len=len, round=round, title=subject.capitalize(),
-                           subject_tasks=subject_tasks[subject], all_exams=all_exams, student_id=str(current_user.id),
-                           id=str(current_user.id))
+        return render_template("stats.html", avg_score=round(
+            sum(all_secondary_results) / len(all_secondary_results) if all_secondary_results else 0, 3), best_score=best,
+                               worst_score=worst, all_tasks=all_average, len=len, round=round, title=subject.capitalize(),
+                               subject_tasks=subject_tasks[subject], all_exams=all_exams, student_id=str(current_user.id),
+                               id=str(current_user.id))
+    return redirect(url_for('login'))
 
 
 @app.route('/add_result/<subject>', methods=['POST', 'GET'])
@@ -292,6 +308,8 @@ def subject(subject):
         bad = []
         db = db_session.create_session()
         exams = db.query(Exams).filter(Exams.subject == subject, Exams.user_id == current_user.id).all()
+        primaryJSON = 0
+        seconderyJSON = 0
         if exams:
             a = get_all_tasks(subject, current_user.id, sort=True)
             for elem in a:
@@ -309,12 +327,10 @@ def subject(subject):
             fig = px.line(x=number, y=secondary_scores, labels={'x': 'Номер пробника', 'y': 'Количество баллов'},
                           title='Вторичные баллы')
             seconderyJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-        else:
-            return render_template("subject.html", title=subject, subject=subject, primaryJSON=0, secondaryJSON=0,
-                                   bad=bad)
-
-    return render_template("subject.html", title=subject, subject=subject, primaryJSON=primaryJSON,
-                           secondoryJSON=seconderyJSON, bad=bad, id=str(current_user.id))
+        
+        # Fixed logic flow here to ensure bad/JSON variables are defined
+        return render_template("subject.html", title=subject, subject=subject, primaryJSON=primaryJSON,
+                               secondoryJSON=seconderyJSON, bad=bad, id=str(current_user.id))
 
 
 @app.route("/all_samples/<subject>/<int:id>")
@@ -433,12 +449,6 @@ def find_user(id):
     return db.query(User).filter(User.id == id).first()
 
 
-def main():
-    app.register_blueprint(users_api, url_prefix='/api/users')
-    # app.register_blueprint(exams_blueprint, url_prefix='/api/exams')
+if __name__ == '__main__':
     db_session.global_init("db/database.db")
     app.run(debug=True)
-
-
-if __name__ == '__main__':
-    main()
