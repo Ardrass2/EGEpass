@@ -14,3 +14,4 @@ Werkzeug==2.2.2
 WTForms==3.0.1
 pandas
 BeautifulSoup4
+awsgi
